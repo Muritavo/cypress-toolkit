@@ -2,6 +2,7 @@
 
 const nodeFetch = require("node-fetch");
 const { spawn } = require("child_process");
+const log = require("debug")("muritavo:cypress:starter");
 function WaitTimeout(ml = 200) {
     return new Promise<void>((r) => {
         setTimeout(() => {
@@ -39,11 +40,14 @@ spawn(
     }, 60000);
     while (!breakLoop) {
         try {
-            await fetch(`http://localhost:4000`);
-            console.log("Emulator restarted");
+            log("Checking if it's up")
+            await nodeFetch(`http://localhost:4000`);
+            log("Emulator is up and ready")
             clearTimeout(timeout);
             process.exit(0);
-        } catch (e) { }
+        } catch (e) {
+            log("Emulator is not ready yet, retrying in 1 sec")
+        }
         await WaitTimeout(1000);
     }
 })();
