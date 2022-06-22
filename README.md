@@ -1,3 +1,5 @@
+![npm](https://img.shields.io/npm/v/@muritavo/cypress-toolkit)
+
 # Introduction
 
 Cypress is an automation tool that (recently) can isolate and test components directly in the browser
