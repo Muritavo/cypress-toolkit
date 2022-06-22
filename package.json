@@ -1,0 +1,35 @@
+{
+  "name": "@muritavo/cypress-toolkit",
+  "version": "0.0.1",
+  "description": "A series of utility functions for working with cypress (mainly cypress Component testing)",
+  "main": "dist/index.js",
+  "repository": "git@github.com:Muritavo/cypress-qa.git",
+  "author": "Murilo Araujo <murilo.araujo@onepercent.io>",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "index.d.ts"
+  ],
+  "bin": {
+    "start-firebase-emulator": "./dist/bin/start-firebase-emulator"
+  },
+  "devDependencies": {
+    "@muritavo/webpack-microfrontend-scripts": "^0.0.20",
+    "@types/webpack": "^5.28.0",
+    "cypress": "^10.2.0",
+    "react": "^18.2.0",
+    "typescript": "^4.7.4"
+  },
+  "scripts": {
+    "dev": "tsc --watch"
+  },
+  "types": "index.d.ts",
+  "dependencies": {
+    "@cypress/code-coverage": "^3.10.0",
+    "@cypress/react": "^6.0.0",
+    "babel-plugin-istanbul": "^6.1.1",
+    "cypress-real-events": "^1.7.0",
+    "deepdash": "^5.3.9",
+    "node-fetch": "^3.2.6"
+  }
+}
