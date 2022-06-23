@@ -1,5 +1,6 @@
 /// <reference types="cypress-real-events"/>
-
+/// <reference types="cypress-wait-until"/>
+/// <reference types="cypress-file-upload"/>
 declare namespace Cypress {
     interface Chainable<Subject = any> {
         /**
@@ -12,16 +13,28 @@ declare namespace Cypress {
          * If you require the emulator to be recreated after the tests use the function cy.killEmulator() on a afterEach block
          */
         startEmulator(projectName: string, databaseToImport?: string): Chainable<void>
-        
+
         /**
          * This function force kills all emulator related ports
          */
         killEmulator(): Chainable<void>
+
+        /**
+         * This finds an element based on their testids
+         */
+        byTestId(testId: string): Chainable<JQuery<HTMLElement>>
+
+        /**
+         * Generates a random image from a string
+         * 
+         * chains to a base64 string of the image
+         */
+        randomImage(width: number, height: number, seed: string): Chainable<string>
+
         //   login(
         //     context: import('@firebase/rules-unit-testing').RulesTestEnvironment | TestEntities.FirebaseUser,
         //     user?: TestEntities.FirebaseUser
         //   ): Chainable<Subject>
-        //   byTestId(testId: string): Chainable<JQuery<HTMLElement>>
         //   delay(
         //     ms: number,
         //     forAction: { action: Function; label: string }

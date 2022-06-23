@@ -16,8 +16,9 @@ Cypress.Commands.add("startEmulator", (projectName, databaseToImport = "") => {
     cy.exec(command, {
         // It takes time to up an emulator
         timeout: 60000,
+    }).then(() => {
+        sessionStorage.setItem("last-database", databaseToImport)
     });
-    sessionStorage.setItem("last-database", databaseToImport)
 })
 
 Cypress.Commands.add("killEmulator", () => {

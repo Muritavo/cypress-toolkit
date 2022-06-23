@@ -28,10 +28,13 @@
     "@cypress/code-coverage": "^3.10.0",
     "@cypress/react": "^6.0.0",
     "babel-plugin-istanbul": "^6.1.1",
+    "cypress-file-upload": "^5.0.8",
     "cypress-real-events": "^1.7.0",
+    "cypress-wait-until": "^1.7.2",
     "debug": "^4.3.4",
     "deepdash": "^5.3.9",
     "kill-port": "^2.0.1",
-    "node-fetch": "^2"
+    "node-fetch": "^2",
+    "text2png": "^2.3.0"
   }
 }
