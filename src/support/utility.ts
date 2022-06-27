@@ -33,7 +33,7 @@ export const generateImage = function (cols: number, rows: number, strRandom: st
     return instance
 };
 
-Cypress.Commands.add("randomImage", (width, height, seed) => {
+Cypress.Commands.add("randomImage", (width: number, height, seed) => {
     const widthPts = width / 100;
     const heightPts = height / 100;
     return generateImage(widthPts, heightPts, seed);

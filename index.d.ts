@@ -1,6 +1,18 @@
 /// <reference types="cypress-real-events"/>
 /// <reference types="cypress-wait-until"/>
 /// <reference types="cypress-file-upload"/>
+
+type mountFunc = typeof import("cypress/react")['mountHook']
+
+declare type MountHookResult<T> = {
+    readonly current: T | null | undefined;
+    readonly error: Error | null;
+};
+
+type EmulatorPorts = {
+    firestore: number,
+}
+
 declare namespace Cypress {
     interface Chainable<Subject = any> {
         /**
@@ -20,6 +32,26 @@ declare namespace Cypress {
         killEmulator(): Chainable<void>
 
         /**
+         * Adds a new user to the emulator
+         */
+        addUser(email: string, password: string, projectName: string, ports: Pick<EmulatorPorts, "auth">): Chainable<{}>
+
+        /**
+         * Clear the current firestore database
+         */
+        clearFirestore(projectName: string, emulatorPorts: Pick<EmulatorPorts, "firestore">): Chainable<void>
+
+        /**
+         * Clear the current firestore database
+         */
+        clearAuth(projectName: string, ports: Pick<EmulatorPorts, "auth">): Chainable<void>
+
+        /**
+         * Gives access to the admin interface for managing and setting up the emulator environment
+         */
+        setupEmulator(setupFunc: (firestore: import("@firebase/rules-unit-testing").RulesTestContext['firestore']) => Promise<void>, project: string, ports: Pick<EmulatorPorts, "firestore">): Chainable<void>
+
+        /**
          * This finds an element based on their testids
          */
         byTestId(testId: string): Chainable<JQuery<HTMLElement>>
@@ -30,6 +62,11 @@ declare namespace Cypress {
          * chains to a base64 string of the image
          */
         randomImage(width: number, height: number, seed: string): Chainable<string>
+
+        /**
+         * Mount hook with a wrapper
+         */
+        mountHookWrap: <T>(hookFn: (...args: any[]) => T, Wrapper: React.FunctionComponent) => Cypress.Chainable<MountHookResult<T>>;
 
         //   login(
         //     context: import('@firebase/rules-unit-testing').RulesTestEnvironment | TestEntities.FirebaseUser,

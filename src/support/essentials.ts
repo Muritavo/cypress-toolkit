@@ -5,3 +5,4 @@ import 'cypress-file-upload';
 import "./emulator"
 import "./findingElements"
 import "./utility"
+import "./rendering"
