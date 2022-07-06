@@ -38,3 +38,16 @@ Cypress.Commands.add("randomImage", (width: number, height, seed) => {
     const heightPts = height / 100;
     return generateImage(widthPts, heightPts, seed);
 })
+
+cy.delayedSpy = (shouldSucceed, timeout, resolveOrRejectWith) => {
+    return cy.spy(() => {
+        return new Promise<void>((r, rej) => {
+            setTimeout(() => {
+                if (shouldSucceed)
+                    r(resolveOrRejectWith)
+                else
+                    rej(resolveOrRejectWith)
+            }, timeout)
+        })
+    })
+}

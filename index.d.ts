@@ -9,10 +9,6 @@ declare type MountHookResult<T> = {
     readonly error: Error | null;
 };
 
-type EmulatorPorts = {
-    firestore: number,
-}
-
 declare namespace Cypress {
     interface Chainable<Subject = any> {
         /**
@@ -20,11 +16,12 @@ declare namespace Cypress {
          * 
          * It also keeps the emulator running until it changes @param databaseToImport. 
          * @param projectName A required project name for the emulator to start with
+         * @param forceStart Force startup
          * @param databaseToImport a (preferably absolute) path to the emulator backup
          * 
          * If you require the emulator to be recreated after the tests use the function cy.killEmulator() on a afterEach block
          */
-        startEmulator(projectName: string, databaseToImport?: string): Chainable<void>
+        startEmulator(projectName: string, databaseToImport?: string, forceStart?: boolean): Chainable<void>
 
         /**
          * This function force kills all emulator related ports
@@ -34,22 +31,22 @@ declare namespace Cypress {
         /**
          * Adds a new user to the emulator
          */
-        addUser(email: string, password: string, projectName: string, ports: Pick<EmulatorPorts, "auth">): Chainable<{}>
+        addUser(email: string, password: string, projectName: string): Chainable<{}>
 
         /**
          * Clear the current firestore database
          */
-        clearFirestore(projectName: string, emulatorPorts: Pick<EmulatorPorts, "firestore">): Chainable<void>
+        clearFirestore(projectName: string): Chainable<void>
 
         /**
          * Clear the current firestore database
          */
-        clearAuth(projectName: string, ports: Pick<EmulatorPorts, "auth">): Chainable<void>
+        clearAuth(projectName: string): Chainable<void>
 
         /**
          * Gives access to the admin interface for managing and setting up the emulator environment
          */
-        setupEmulator(setupFunc: (firestore: import("@firebase/rules-unit-testing").RulesTestContext['firestore']) => Promise<void>, project: string, ports: Pick<EmulatorPorts, "firestore">): Chainable<void>
+        setupEmulator(setupFunc: (firestore: import("@firebase/rules-unit-testing").RulesTestContext['firestore']) => Promise<void>, project: string): Chainable<void>
 
         /**
          * This finds an element based on their testids
@@ -68,6 +65,10 @@ declare namespace Cypress {
          */
         mountHookWrap: <T>(hookFn: (...args: any[]) => T, Wrapper: React.FunctionComponent) => Cypress.Chainable<MountHookResult<T>>;
 
+        /**
+         * Generate a delayed function for usage with cypress
+         */
+        delayedSpy: (shouldSucceed: boolean, timeout: number, resolveOrRejectWith: any) => Cypress.Agent
         //   login(
         //     context: import('@firebase/rules-unit-testing').RulesTestEnvironment | TestEntities.FirebaseUser,
         //     user?: TestEntities.FirebaseUser
