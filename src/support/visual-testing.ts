@@ -37,7 +37,7 @@ function setCurrentSnapshotAsBase(snapname: string) {
      * This is terrible, but it's only way I found for calling a task outside a tesk
      */
     (Cypress as any).Commands._commands.task.fn('moveSnapshot', {
-        fromPath: [fromDir as string, Cypress.spec.name, `${snapname}-actual.png`].join("\\"),
+        fromPath: join(fromDir as string, Cypress.spec.name, `${snapname}-actual.png`),
         toDir,
         specName: Cypress.spec.name,
         fileName: `${snapname}-base.png`,
