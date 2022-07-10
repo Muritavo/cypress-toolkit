@@ -1,0 +1,1 @@
+cy.execTask = cy.task;

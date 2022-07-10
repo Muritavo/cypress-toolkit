@@ -74,5 +74,17 @@ declare namespace Cypress {
          * If a previous image exists, compare with it. If not set the current image as previous image
          */
         comparePreviousUI: (snapshotId) => Cypress.Chainable<void>
+
+        /**
+         * A copy of cy.task to allow intelissense support
+         */
+        execTask<E extends keyof Cypress.CustomTasks = keyof Cypress.CustomTasks>(event: E, arg?: Parameters<Cypress.CustomTasks[E]>[0], options?: Partial<Loggable & Timeoutable>): Chainable<Awaited<ReturnType<Cypress.CustomTasks[E]>>>
     }
+    interface CustomTasks {
+        startEmulator: (args: TasksArgs['StartEmulatorTask']) => Promise<null>,
+        killEmulator: () => Promise<null>
+    }
+    interface Tasks extends CustomTasks { }
 }
+
+type TasksArgs = import("./src/scripts/tasks").TasksArgs;

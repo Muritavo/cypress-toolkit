@@ -10,9 +10,6 @@
     "dist",
     "index.d.ts"
   ],
-  "bin": {
-    "start-firebase-emulator": "./dist/bin/start-firebase-emulator.js"
-  },
   "devDependencies": {
     "@muritavo/webpack-microfrontend-scripts": "^0.0.20",
     "@types/react": "^18.0.14",

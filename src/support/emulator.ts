@@ -11,10 +11,8 @@ export function setEmulatorConfig(config: FirebaseConfigShape) {
     emulatorConfig = config
 }
 
-export const killEmulatorPorts = () => {
-    for (let port of Object.values(emulatorConfig.emulators).map(a => a.port)) {
-        cy.exec(`yarn kill-port ${port}`).wait(500)
-    }
+export const killEmulator = () => {
+    cy.execTask("killEmulator");
 }
 
 function _getPort(emulator: keyof FirebaseConfigShape['emulators']) {
@@ -40,11 +38,11 @@ before() {
 Cypress.Commands.add("startEmulator", (projectName, databaseToImport = "", forceStart) => {
     if (sessionStorage.getItem("last-database") === databaseToImport && !forceStart)
         return;
-    killEmulatorPorts();
-    const command = `yarn start-firebase-emulator ${projectName} ${databaseToImport}`;
-    cy.exec(command, {
-        // It takes time to up an emulator
-        timeout: 60000,
+    killEmulator();
+    cy.execTask("startEmulator", {
+        projectId: projectName,
+        databaseToImport: databaseToImport,
+        UIPort: emulatorConfig.emulators.ui.port
     }).then(() => {
         sessionStorage.setItem("last-database", databaseToImport)
     });
