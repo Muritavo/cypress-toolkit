@@ -1,7 +1,8 @@
-import "cypress-real-events/support";
+import "cypress-real-events/support"
+import 'cypress-wait-until'
+import 'cypress-file-upload'
 import '@cypress/code-coverage/support'
-import 'cypress-wait-until';
-import 'cypress-file-upload';
+import "./visual-testing"
 import "./emulator"
 import "./findingElements"
 import "./utility"

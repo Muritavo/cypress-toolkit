@@ -1,6 +1,6 @@
 {
   "name": "@muritavo/cypress-toolkit",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A series of utility functions for working with cypress (mainly cypress Component testing)",
   "main": "dist/index.js",
   "repository": "git@github.com:Muritavo/cypress-toolkit.git",
@@ -34,6 +34,7 @@
     "babel-plugin-istanbul": "^6.1.1",
     "cypress-file-upload": "^5.0.8",
     "cypress-real-events": "^1.7.0",
+    "cypress-visual-regression": "https://github.com/muritavo/cypress-visual-regression",
     "cypress-wait-until": "^1.7.2",
     "debug": "^4.3.4",
     "deepdash": "^5.3.9",

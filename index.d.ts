@@ -69,20 +69,10 @@ declare namespace Cypress {
          * Generate a delayed function for usage with cypress
          */
         delayedSpy: (shouldSucceed: boolean, timeout: number, resolveOrRejectWith: any) => Cypress.Agent
-        //   login(
-        //     context: import('@firebase/rules-unit-testing').RulesTestEnvironment | TestEntities.FirebaseUser,
-        //     user?: TestEntities.FirebaseUser
-        //   ): Chainable<Subject>
-        //   delay(
-        //     ms: number,
-        //     forAction: { action: Function; label: string }
-        //   ): Chainable<Subject>
-        //   containTranslation(
-        //     t: TranslationCodesByTenant[keyof TranslationCodesByTenant],
-        //     props?: any
-        //   ): Chainable<JQuery<HTMLElement>>
-        //   responsive<D extends RESOLUTION[] = PREDEF_DEVICES[keyof PREDEF_DEVICES]>(assertions: (device: D[number]) => void, res?: D): Chainable<Subject>
-        //   inViewport(mode?: "dimension-wise" | "width-wise" | "height-wise"): Chainable<Subject>
-        //   snapshot(): Chainable<Subject>
+
+        /**
+         * If a previous image exists, compare with it. If not set the current image as previous image
+         */
+        comparePreviousUI: (snapshotId) => Cypress.Chainable<void>
     }
 }

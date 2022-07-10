@@ -12,7 +12,7 @@ This can be usefull for a full automation testing, including logic, compatibilit
 
 Here I will be including a series of usefull tools for facilitating testing with cypress
 
-To check the commands, you can take a look at index.d.ts. 
+To check the commands, you can take a look at index.d.ts.
 
 Let's hope everything is nicely documented :)
 
@@ -28,16 +28,17 @@ Let's hope everything is nicely documented :)
 - Intercept the webpack config and include this library setup with
 
 ```js
-// cypress/plugins/index.js
-const setup = require("@muritavo/cypress-toolkit/dist/scripts/config.js");
+// cypress.config.{js,ts}
+import setup from "@muritavo/cypress-toolkit/dist/scripts/config.js";
 
 ...
 ...
 module.exports = (on, config) => {
     ...
     ...
-
-    return setup(on, config)
+    setup(on, config)
+    ...
+    ...
 }
 ```
 

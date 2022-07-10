@@ -114,7 +114,7 @@ Cypress.Commands.add("setupEmulator", (cb: (fs: any) => Promise<void>, projectId
                 port: _getPort("firestore"),
             },
         });
-        await testEnv.withSecurityRulesDisabled(async (ctx) => {
+        await testEnv.withSecurityRulesDisabled(async (ctx: any) => {
             await cb(ctx.firestore({
                 experimentalForceLongPolling: true
             }))
