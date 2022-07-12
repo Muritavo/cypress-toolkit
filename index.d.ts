@@ -3,14 +3,51 @@
 /// <reference types="cypress-file-upload"/>
 
 type mountFunc = typeof import("cypress/react")['mountHook']
+type FunctionComponent = typeof import("react")['FunctionComponent']
+
+type OverloadProps<TOverload> = Pick<TOverload, keyof TOverload>;
+
+type OverloadUnionRecursive<TOverload, TPartialOverload = unknown> = TOverload extends (
+    ...args: infer TArgs
+) => infer TReturn
+    ? // Prevent infinite recursion by stopping recursion when TPartialOverload
+    // has accumulated all of the TOverload signatures.
+    TPartialOverload extends TOverload
+    ? never
+    :
+    | OverloadUnionRecursive<
+        TPartialOverload & TOverload,
+        TPartialOverload & ((...args: TArgs) => TReturn) & OverloadProps<TOverload>
+    >
+    | ((...args: TArgs) => TReturn)
+    : never;
+
+// Inferring a union of parameter tuples or return types is now possible.
+type OverloadParameters<T extends (...args: any[]) => any> = Parameters<OverloadUnionRecursive<T>>;
+
+interface FuncInt {
+    (arg: string, args: number): void
+    (arg: number, args: symbol): void
+}
 
 declare type MountHookResult<T> = {
     readonly current: T | null | undefined;
     readonly error: Error | null;
 };
 
+type ExtractFromUnionKeys = "then" | "wait";
+
+type RerenderChain<I, T> = {
+    [k in Exclude<keyof Cypress.Chainable<I, T>, ExtractFromUnionKeys>]:
+    Cypress.Chainable<I, T>[k] extends (...args: infer A) => infer R
+    ? (...args: A) => RerenderChain<I, T>
+    : never
+} & {
+        [k in ExtractFromUnionKeys]: (...args: OverloadParameters<Cypress.Chainable<I, T>[k]>) => RerenderChain<I, T>
+    }
+
 declare namespace Cypress {
-    interface Chainable<Subject = any> {
+    interface Chainable<Subject = any, RerenderFunc = any> {
         /**
          * This function tries to start an emulator
          * 
@@ -79,6 +116,19 @@ declare namespace Cypress {
          * A copy of cy.task to allow intelissense support
          */
         execTask<E extends keyof Cypress.CustomTasks = keyof Cypress.CustomTasks>(event: E, arg?: Parameters<Cypress.CustomTasks[E]>[0], options?: Partial<Loggable & Timeoutable>): Chainable<Awaited<ReturnType<Cypress.CustomTasks[E]>>>
+
+        /**
+         * This function was created to reduce boilerplate for rerendering.
+         * 
+         * This way, you can chain multiple rerenders and test multiple component states
+         */
+        mountChain<T extends FunctionComponent>(renderFunc: T): RerenderChain<Subject, T>
+        /**
+         * This function should be called after calling cy.mountChain
+         * 
+         * With this you can call the render function again, with new arguments
+         */
+        remount: (...props: Parameters<RerenderFunc>) => RerenderChain<Subject, RerenderFunc>
     }
     interface CustomTasks {
         startEmulator: (args: TasksArgs['StartEmulatorTask']) => Promise<null>,

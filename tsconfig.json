@@ -19,6 +19,7 @@
     "sourceMap": true,
     "types": ["cypress", "node"],
     "declaration": true,
+    "jsx": "react",
     
     // "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
     // "jsx": "preserve",                                /* Specify what JSX code is generated. */
