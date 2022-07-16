@@ -2,11 +2,12 @@ import nodeFetch from "node-fetch";
 import { spawn, ChildProcess } from "child_process";
 import { TasksArgs } from "./tasks";
 
-const log = require("debug")("@muritavo:cypress:starter");
+const log = require("debug")("cypress-toolkit/emulator");
 let spawnResult: {
     project: string,
     database?: string,
-    process: ChildProcess
+    process: ChildProcess,
+    id: string
 };
 function WaitTimeout(ml = 200) {
     return new Promise<void>((r) => {
@@ -16,13 +17,27 @@ function WaitTimeout(ml = 200) {
     });
 }
 async function killEmulator() {
-    if (spawnResult)
+    if (!spawnResult)
+        return Promise.resolve(null);
+    return new Promise((r, rej) => {
+        const t = setTimeout(() => {
+            rej(new Error("Couldn't kill emulator"))
+        }, 10000)
+        spawnResult.process.on("close", () => {
+            clearTimeout(t);
+            r(null);
+        })
         spawnResult.process.kill("SIGINT");
-    return Promise.resolve(null);
+    })
 }
 async function startEmulatorTask(args: TasksArgs['StartEmulatorTask']) {
     log("Spawning emulator process")
+    if (args.suiteId === spawnResult?.id)
+        return null;
+    else
+        await killEmulator();
     spawnResult = {
+        id: args.suiteId,
         project: args.projectId,
         database: args.databaseToImport,
         process: spawn(
@@ -87,5 +102,5 @@ export default function setupEmulatorTasks(on: Cypress.PluginEvents) {
     on('task', {
         startEmulator: startEmulatorTask,
         killEmulator
-    })
+    } as Cypress.Tasks)
 }

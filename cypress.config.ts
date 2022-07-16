@@ -6,5 +6,6 @@ export default defineConfig({
       framework: "react",
       bundler: "webpack",
     },
+    specPattern: "cypress/e2e/**/*.test.tsx"
   },
 });

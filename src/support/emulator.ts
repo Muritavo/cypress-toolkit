@@ -35,14 +35,12 @@ before() {
     return emulatorConfigSet.port;
 }
 
-Cypress.Commands.add("startEmulator", (projectName, databaseToImport = "", forceStart) => {
-    if (sessionStorage.getItem("last-database") === databaseToImport && !forceStart)
-        return;
-    killEmulator();
+Cypress.Commands.add("startEmulator", (projectName, databaseToImport = "", suiteId, forceStart) => {
     cy.execTask("startEmulator", {
         projectId: projectName,
         databaseToImport: databaseToImport,
-        UIPort: emulatorConfig.emulators.ui.port
+        UIPort: emulatorConfig.emulators.ui.port,
+        suiteId: suiteId || databaseToImport
     }).then(() => {
         sessionStorage.setItem("last-database", databaseToImport)
     });

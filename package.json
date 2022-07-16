@@ -15,18 +15,23 @@
     "@types/react": "^18.0.14",
     "@types/webpack": "^5.28.0",
     "cypress": "^10.2.0",
+    "ganache": "^7.3.2",
+    "hardhat": "^2.10.0",
     "react": "^18.2.0",
     "typescript": "^4.7.4"
   },
   "scripts": {
     "dev": "tsc --watch",
-    "build": "tsc"
+    "build": "tsc",
+    "test:watch": "cypress open --component --browser chrome"
   },
   "types": "index.d.ts",
   "dependencies": {
     "@cypress/code-coverage": "^3.10.0",
     "@cypress/react": "^6.0.0",
     "@firebase/rules-unit-testing": "^2.0.3",
+    "@truffle/compile-solidity": "^6.0.34",
+    "@types/find-cache-dir": "^3.2.1",
     "@types/node-fetch": "^2.6.2",
     "babel-plugin-istanbul": "^6.1.1",
     "cypress-file-upload": "^5.0.8",
@@ -35,8 +40,10 @@
     "cypress-wait-until": "^1.7.2",
     "debug": "^4.3.4",
     "deepdash": "^5.3.9",
+    "find-cache-dir": "^3.3.2",
     "kill-port": "^2.0.1",
     "node-fetch": "^2",
-    "text2png": "^2.3.0"
+    "text2png": "^2.3.0",
+    "truffle": "^5.5.21"
   }
 }

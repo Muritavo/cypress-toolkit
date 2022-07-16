@@ -9,6 +9,7 @@ export type TasksArgs = {
     StartEmulatorTask: {
         projectId: string,
         databaseToImport?: string,
-        UIPort: number
+        UIPort: number,
+        suiteId: string
     }
 }

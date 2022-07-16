@@ -36,18 +36,55 @@ declare type MountHookResult<T> = {
 };
 
 type ExtractFromUnionKeys = "then" | "wait";
+type OnlyCopy = "contains" | "should" | "and"
 
 type RerenderChain<I, T> = {
-    [k in Exclude<keyof Cypress.Chainable<I, T>, ExtractFromUnionKeys>]:
+    [k in Exclude<keyof Cypress.Chainable<I, T>, ExtractFromUnionKeys | OnlyCopy>]:
     Cypress.Chainable<I, T>[k] extends (...args: infer A) => infer R
     ? (...args: A) => RerenderChain<I, T>
     : never
 } & {
         [k in ExtractFromUnionKeys]: (...args: OverloadParameters<Cypress.Chainable<I, T>[k]>) => RerenderChain<I, T>
     }
+    & {
+        [k in OnlyCopy]: Cypress.Chainable<I, T>[k]
+    }
 
-declare namespace Cypress {
-    interface Chainable<Subject = any, RerenderFunc = any> {
+namespace BlockchainOperations {
+    type ContractShape = {
+        address: string,
+        owner: string
+    }
+    type BlockchainWallets = {
+        [address: string]: {
+            balance: number,
+            unlocked: number,
+            secretKey: string
+        }
+    }
+    interface Commands {
+        /**
+         * This will start up a server to deploy the contracts into
+         * @param projectRootFolder The root folder for the project with the contracts
+         */
+        startBlockchain(projectRootFolder: string): Cypress.Chainable<BlockchainWallets>
+
+        /**
+         * Deploys a contact and returns the address that it has been deployed to
+         * @param contractName The name of the contract
+         * @param initializationArgs The arguments for initializing the contract ("calls the initialize method")
+         */
+        deployContract(contractName: string, ...initializationArgs: any[]): Cypress.Chainable<ContractShape>
+    }
+    interface Tasks {
+        startBlockchain(blockchainProjectFolder: string): Promise<BlockchainWallets>
+        deployContract(p: { contractName: string, args: any[] }): Promise<ContractShape>
+    }
+}
+
+namespace EmulatorOperations {
+    interface Commands {
+
         /**
          * This function tries to start an emulator
          * 
@@ -55,10 +92,11 @@ declare namespace Cypress {
          * @param projectName A required project name for the emulator to start with
          * @param forceStart Force startup
          * @param databaseToImport a (preferably absolute) path to the emulator backup
+         * @param suiteId an identifier for the emulator, so it can detect when to reinstanciate between tests (usefull for describe blocks)
          * 
          * If you require the emulator to be recreated after the tests use the function cy.killEmulator() on a afterEach block
          */
-        startEmulator(projectName: string, databaseToImport?: string, forceStart?: boolean): Chainable<void>
+        startEmulator(projectName: string, databaseToImport?: string, suiteId?: string, forceStart?: boolean): Chainable<void>
 
         /**
          * This function force kills all emulator related ports
@@ -84,7 +122,15 @@ declare namespace Cypress {
          * Gives access to the admin interface for managing and setting up the emulator environment
          */
         setupEmulator(setupFunc: (firestore: import("@firebase/rules-unit-testing").RulesTestContext['firestore']) => Promise<void>, project: string): Chainable<void>
+    }
+    interface Tasks {
+        startEmulator: (args: TasksArgs['StartEmulatorTask']) => Promise<null>,
+        killEmulator: () => Promise<null>
+    }
+}
 
+declare namespace Cypress {
+    interface Chainable<Subject = any, RerenderFunc = any> extends BlockchainOperations.Commands, EmulatorOperations.Commands {
         /**
          * This finds an element based on their testids
          */
@@ -115,7 +161,7 @@ declare namespace Cypress {
         /**
          * A copy of cy.task to allow intelissense support
          */
-        execTask<E extends keyof Cypress.CustomTasks = keyof Cypress.CustomTasks>(event: E, arg?: Parameters<Cypress.CustomTasks[E]>[0], options?: Partial<Loggable & Timeoutable>): Chainable<Awaited<ReturnType<Cypress.CustomTasks[E]>>>
+        execTask<E extends keyof Cypress.CustomTasks = keyof Cypress.CustomTasks>(event: E, arg?: Parameters<Cypress.CustomTasks[E]>[0], options?: Partial<Loggable & Timeoutable>): Chainable<Awaited<ReturnType<Cypress.CustomTasks[E]>> extends null ? void : Awaited<ReturnType<Cypress.CustomTasks[E]>>>
 
         /**
          * This function was created to reduce boilerplate for rerendering.
@@ -130,9 +176,7 @@ declare namespace Cypress {
          */
         remount: (...props: Parameters<RerenderFunc>) => RerenderChain<Subject, RerenderFunc>
     }
-    interface CustomTasks {
-        startEmulator: (args: TasksArgs['StartEmulatorTask']) => Promise<null>,
-        killEmulator: () => Promise<null>
+    interface CustomTasks extends BlockchainOperations.Tasks, EmulatorOperations.Tasks {
     }
     interface Tasks extends CustomTasks { }
 }
