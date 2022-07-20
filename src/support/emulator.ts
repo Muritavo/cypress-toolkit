@@ -78,12 +78,13 @@ Cypress.Commands.add("clearAuth", (projectId: string) => {
     }) as any
 })
 
-Cypress.Commands.add("addUser", (email: string, password, projectId) => {
+Cypress.Commands.add("addUser", (email: string, password, projectId, localId) => {
     return new Cypress.Promise<void>(async (r, rej) => {
         nodeFetch(`http://localhost:${_getPort("auth")}/identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts`, {
             body: JSON.stringify({
                 email,
                 password,
+                localId
             }),
             headers: {
                 "content-type": "application/json",

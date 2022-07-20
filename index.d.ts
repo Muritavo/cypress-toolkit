@@ -62,19 +62,44 @@ namespace BlockchainOperations {
             secretKey: string
         }
     }
-    interface Commands {
+    type ArrayExceptFirst<F> =
+        F extends [arg0: any, ...rest: infer R] ? R : never;
+    type TupleToFunctionTuple<A,
+        T,
+        F = T[0],
+        N = [F] extends [undefined] ? true : false
+        > = true extends N ? [] : [F | ((contracts: A['contracts']) => F), ...TupleToFunctionTuple<A, ArrayExceptFirst<T>>];
+    interface Commands<A extends any = any> {
+
         /**
          * This will start up a server to deploy the contracts into
          * @param projectRootFolder The root folder for the project with the contracts
          */
-        startBlockchain(projectRootFolder: string): Cypress.Chainable<BlockchainWallets>
+        startBlockchain(projectRootFolder: string): Cypress.Chainable<(A extends never ? {} : A) & {
+            wallets: BlockchainWallets
+        }>
 
         /**
          * Deploys a contact and returns the address that it has been deployed to
          * @param contractName The name of the contract
          * @param initializationArgs The arguments for initializing the contract ("calls the initialize method")
          */
-        deployContract(contractName: string, ...initializationArgs: any[]): Cypress.Chainable<ContractShape>
+        deployContract<ABI extends readonly any[], CN extends string>(contractName: CN, abi: ABI, ...initializationArgs: (any | ((ctr: A['contracts']) => any))[]): Cypress.Chainable<(A extends any ? {} : A) & {
+            contracts: A['contracts'] & {
+                [s in typeof contractName]: {
+                    address: string,
+                    owner: string,
+                    contract: import("./types/contract").GenericContract<ABI>
+                }
+            }
+        }>
+
+        invokeContract<CN extends keyof A['contracts'], MethodName extends keyof A['contracts'][CN]['contract']['methods']>(
+            withWalllet: string | ((contracts: A['contracts'], wallets: A['wallets']) => string),
+            contractName: CN,
+            method: MethodName,
+            ...params: TupleToFunctionTuple<A, Parameters<A['contracts'][CN]['contract']['methods'][MethodName]>>
+        ): Cypress.Chainable<A>
     }
     interface Tasks {
         startBlockchain(blockchainProjectFolder: string): Promise<BlockchainWallets>
@@ -84,7 +109,6 @@ namespace BlockchainOperations {
 
 namespace EmulatorOperations {
     interface Commands {
-
         /**
          * This function tries to start an emulator
          * 
@@ -96,32 +120,34 @@ namespace EmulatorOperations {
          * 
          * If you require the emulator to be recreated after the tests use the function cy.killEmulator() on a afterEach block
          */
-        startEmulator(projectName: string, databaseToImport?: string, suiteId?: string, forceStart?: boolean): Chainable<void>
+        startEmulator(projectName: string, databaseToImport?: string, suiteId?: string, forceStart?: boolean): Cypress.Chainable<void>
 
         /**
          * This function force kills all emulator related ports
          */
-        killEmulator(): Chainable<void>
+        killEmulator(): Cypress.Chainable<void>
 
         /**
          * Adds a new user to the emulator
+         * 
+         * @param localId To define a deterministic id for the user
          */
-        addUser(email: string, password: string, projectName: string): Chainable<{}>
+        addUser(email: string, password: string, projectName: string, localId?: string): Cypress.Chainable<{}>
 
         /**
          * Clear the current firestore database
          */
-        clearFirestore(projectName: string): Chainable<void>
+        clearFirestore(projectName: string): Cypress.Chainable<void>
 
         /**
          * Clear the current firestore database
          */
-        clearAuth(projectName: string): Chainable<void>
+        clearAuth(projectName: string): Cypress.Chainable<void>
 
         /**
          * Gives access to the admin interface for managing and setting up the emulator environment
          */
-        setupEmulator(setupFunc: (firestore: import("@firebase/rules-unit-testing").RulesTestContext['firestore']) => Promise<void>, project: string): Chainable<void>
+        setupEmulator(setupFunc: (firestore: import("@firebase/rules-unit-testing").RulesTestContext['firestore']) => Promise<void>, project: string): Cypress.Chainable<void>
     }
     interface Tasks {
         startEmulator: (args: TasksArgs['StartEmulatorTask']) => Promise<null>,
@@ -130,7 +156,7 @@ namespace EmulatorOperations {
 }
 
 declare namespace Cypress {
-    interface Chainable<Subject = any, RerenderFunc = any> extends BlockchainOperations.Commands, EmulatorOperations.Commands {
+    interface Chainable<Subject = any, RerenderFunc = any> extends BlockchainOperations.Commands<Subject>, EmulatorOperations.Commands {
         /**
          * This finds an element based on their testids
          */
