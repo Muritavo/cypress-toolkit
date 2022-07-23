@@ -20,14 +20,20 @@ async function killEmulator() {
     if (!spawnResult)
         return Promise.resolve(null);
     return new Promise((r, rej) => {
-        const t = setTimeout(() => {
-            rej(new Error("Couldn't kill emulator"))
-        }, 10000)
-        spawnResult.process.on("close", () => {
-            clearTimeout(t);
-            r(null);
-        })
-        spawnResult.process.kill("SIGINT");
+        try {
+            const t = setTimeout(() => {
+                spawnResult = undefined as any;
+                rej(new Error("Couldn't kill emulator"))
+            }, 10000)
+            spawnResult.process.on("close", () => {
+                clearTimeout(t);
+                r(null);
+            })
+            spawnResult.process.kill("SIGINT");
+        } catch (e) {
+            console.log("Unhandled exception", e);
+            r(null)
+        }
     })
 }
 async function startEmulatorTask(args: TasksArgs['StartEmulatorTask']) {
@@ -60,7 +66,7 @@ async function startEmulatorTask(args: TasksArgs['StartEmulatorTask']) {
             console.error("Could not receive ok from firebase emulator");
             clearTimeout(timeout);
             rej(new Error("Timeout"))
-        }, 60000);
+        }, 30000);
 
         log("Process is killed: ", spawnResult.process.killed)
         log("Process exit code", spawnResult.process.exitCode)
