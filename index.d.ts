@@ -75,7 +75,7 @@ namespace BlockchainOperations {
          * This will start up a server to deploy the contracts into
          * @param projectRootFolder The root folder for the project with the contracts
          */
-        startBlockchain(projectRootFolder: string): Cypress.Chainable<(A extends never ? {} : A) & {
+        startBlockchain(projectRootFolder: string): Cypress.Chainable<(A extends {} ? A : {}) & {
             wallets: BlockchainWallets
         }>
 
@@ -84,14 +84,14 @@ namespace BlockchainOperations {
          * @param contractName The name of the contract
          * @param initializationArgs The arguments for initializing the contract ("calls the initialize method")
          */
-        deployContract<ABI extends readonly any[], CN extends string>(contractName: CN, abi: ABI, ...initializationArgs: (any | ((ctr: A['contracts']) => any))[]): Cypress.Chainable<(A extends any ? {} : A) & {
+        deployContract<ABI extends readonly any[], CN extends string>(contractName: CN, abi: ABI, ...initializationArgs: (any | ((ctr: A['contracts']) => any))[]): Cypress.Chainable<(A extends {} ? A : {}) & {
             contracts: A['contracts'] & {
                 [s in typeof contractName]: {
                     address: string,
                     owner: string,
                     contract: import("./types/contract").GenericContract<ABI>
                 }
-            }
+            },
         }>
 
         invokeContract<CN extends keyof A['contracts'], MethodName extends keyof A['contracts'][CN]['contract']['methods']>(
@@ -148,6 +148,11 @@ namespace EmulatorOperations {
          * Gives access to the admin interface for managing and setting up the emulator environment
          */
         setupEmulator(setupFunc: (firestore: import("@firebase/rules-unit-testing").RulesTestContext['firestore']) => Promise<void>, project: string): Cypress.Chainable<void>
+
+        /**
+         * Clears a collection so you don't need to manually clean each item
+         */
+        deleteCollection(collectionPath: string, projectName: string): Cypress.Chainable<any>
     }
     interface Tasks {
         startEmulator: (args: TasksArgs['StartEmulatorTask']) => Promise<null>,

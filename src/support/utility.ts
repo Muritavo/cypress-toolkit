@@ -33,6 +33,33 @@ export const generateImage = function (cols: number, rows: number, strRandom: st
     return instance
 };
 
+export const filterLogs = () => {
+    const origLog = Cypress.log;
+    Cypress.log = function (opts, ...other) {
+        if (
+            (opts.displayName && ["xhr", "image"].includes(opts.displayName)) ||
+            (opts.name && ["Coverage", "readfile"].includes(opts.name)) ||
+            ["@cypress/code-coverage"].some((a) => opts.message ? opts.message[0] && String(opts.message[0]).includes(a) : false)
+        ) {
+            delete opts.message;
+            delete opts.displayName;
+            delete opts.type;
+            const p = new Proxy(
+                {},
+                {
+                    get: () => {
+                        return () => p;
+                    },
+                }
+            );
+
+            return p;
+        }
+
+        return origLog(opts, ...other) as any;
+    };
+}
+
 Cypress.Commands.add("randomImage", (width: number, height, seed) => {
     const widthPts = width / 100;
     const heightPts = height / 100;
