@@ -36,10 +36,10 @@ before() {
 }
 
 Cypress.Commands.add("startEmulator", (projectName, databaseToImport = "", suiteId, forceStart) => {
-    cy.execTask("startEmulator", {
+    return cy.execTask("startEmulator", {
         projectId: projectName,
         databaseToImport: databaseToImport,
-        UIPort: emulatorConfig.emulators.ui.port,
+        UIPort: emulatorConfig.emulators.ui.port || 4000,
         suiteId: suiteId || databaseToImport
     }).then(() => {
         sessionStorage.setItem("last-database", databaseToImport)
@@ -117,5 +117,13 @@ Cypress.Commands.add("setupEmulator", (cb: (fs: any) => Promise<void>, projectId
             }))
         });
         r()
+    }) as any
+})
+
+Cypress.Commands.add("deleteCollection", (path, project) => {
+    return new Cypress.Promise<any>(async (r, rej) => {
+        nodeFetch(`http://localhost:${_getPort('firestore')}/emulator/v1/projects/${project}/databases/(default)/documents${path}`, {
+            method: "delete"
+        }).then(r).catch(rej)
     }) as any
 })
