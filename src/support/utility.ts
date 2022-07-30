@@ -70,10 +70,11 @@ cy.delayedSpy = (shouldSucceed, timeout, resolveOrRejectWith) => {
     return cy.spy(() => {
         return new Promise<void>((r, rej) => {
             setTimeout(() => {
+                const result = typeof resolveOrRejectWith === "function" ? resolveOrRejectWith() : resolveOrRejectWith
                 if (shouldSucceed)
-                    r(resolveOrRejectWith)
+                    r(result)
                 else
-                    rej(resolveOrRejectWith)
+                    rej(result)
             }, timeout)
         })
     })
