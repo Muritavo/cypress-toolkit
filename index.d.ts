@@ -160,8 +160,23 @@ namespace EmulatorOperations {
     }
 }
 
+namespace TranslationOperations {
+    interface Commands<Subject = any> {
+        /**
+         * This function validates some text present on screen using the spellchecker
+         */
+        validateSpelling(language: string): Cypress.Chainable<Subject>
+    }
+    interface Tasks {
+        /**
+         * Invokes the native part of the spellchecker and validates the text
+         */
+        validateText(params: TasksArgs['SpellcheckValidate']): Promise<null>
+    }
+}
+
 declare namespace Cypress {
-    interface Chainable<Subject = any, RerenderFunc = any> extends BlockchainOperations.Commands<Subject>, EmulatorOperations.Commands {
+    interface Chainable<Subject = any, RerenderFunc = any> extends BlockchainOperations.Commands<Subject>, EmulatorOperations.Commands, TranslationOperations.Commands<Subject> {
         /**
          * This finds an element based on their testids
          */
@@ -207,9 +222,22 @@ declare namespace Cypress {
          */
         remount: (...props: Parameters<RerenderFunc>) => RerenderChain<Subject, RerenderFunc>
     }
-    interface CustomTasks extends BlockchainOperations.Tasks, EmulatorOperations.Tasks {
+    interface CustomTasks extends BlockchainOperations.Tasks, EmulatorOperations.Tasks, TranslationOperations.Tasks {
     }
     interface Tasks extends CustomTasks { }
 }
 
 type TasksArgs = import("./src/scripts/tasks").TasksArgs;
+
+/**
+ * Test interface extensions
+ */
+interface Each {
+    <T extends Array>(iterations: T, title: string, testFn: (element: T[number]) => any): void
+    only: Each
+}
+declare namespace Mocha {
+    interface TestFunction {
+        each: Each
+    }
+}

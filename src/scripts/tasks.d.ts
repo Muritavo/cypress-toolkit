@@ -12,4 +12,6 @@ export type TasksArgs = {
         UIPort: number,
         suiteId: string
     }
+
+    SpellcheckValidate: { language: string, text: string }
 }
