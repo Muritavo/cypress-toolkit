@@ -9,3 +9,5 @@ import "./utility"
 import "./rendering"
 import "./augmentation/cypress"
 import "./blockchain"
+
+require("./extensions/it.each")();
