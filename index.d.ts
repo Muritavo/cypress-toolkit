@@ -35,8 +35,8 @@ declare type MountHookResult<T> = {
     readonly error: Error | null;
 };
 
-type ExtractFromUnionKeys = "then" | "wait";
-type OnlyCopy = "contains" | "should" | "and"
+type ExtractFromUnionKeys = "wait";
+type OnlyCopy = "contains" | "should" | "and" | "then"
 
 type RerenderChain<I, T> = {
     [k in Exclude<keyof Cypress.Chainable<I, T>, ExtractFromUnionKeys | OnlyCopy>]:
@@ -54,6 +54,11 @@ namespace BlockchainOperations {
     type ContractShape = {
         address: string,
         owner: string
+    }
+    type BlockchainContract<ABI> = {
+        address: string,
+        owner: string,
+        contract: import("./types/contract").GenericContract<ABI>
     }
     type BlockchainWallets = {
         [address: string]: {
@@ -75,7 +80,7 @@ namespace BlockchainOperations {
          * This will start up a server to deploy the contracts into
          * @param projectRootFolder The root folder for the project with the contracts
          */
-        startBlockchain(projectRootFolder: string): Cypress.Chainable<(A extends {} ? A : {}) & {
+        startBlockchain(projectRootFolder: string): Cypress.Chainable<(A extends {} ? A extends undefined ? {} : A : {}) & {
             wallets: BlockchainWallets
         }>
 
@@ -84,13 +89,9 @@ namespace BlockchainOperations {
          * @param contractName The name of the contract
          * @param initializationArgs The arguments for initializing the contract ("calls the initialize method")
          */
-        deployContract<ABI extends readonly any[], CN extends string>(contractName: CN, abi: ABI, ...initializationArgs: (any | ((ctr: A['contracts']) => any))[]): Cypress.Chainable<(A extends {} ? A : {}) & {
+        deployContract<ABI extends readonly any[], CN extends string>(contractName: CN, abi: ABI, ...initializationArgs: (any | ((ctr: A['contracts']) => any))[]): Cypress.Chainable<(A extends {} ? A extends undefined ? {} : A : {}) & {
             contracts: A['contracts'] & {
-                [s in typeof contractName]: {
-                    address: string,
-                    owner: string,
-                    contract: import("./types/contract").GenericContract<ABI>
-                }
+                [s in typeof contractName]: BlockchainContract<ABI>
             },
         }>
 
