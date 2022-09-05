@@ -183,7 +183,7 @@ declare namespace Cypress {
         /**
          * Generate a delayed function for usage with cypress
          */
-        delayedSpy: (shouldSucceed: boolean, timeout: number, resolveOrRejectWith: any) => Cypress.Agent
+        delayedSpy: (shouldSucceed: boolean, timeout: number, resolveOrRejectWith: any) => ReturnType<typeof cy['spy']>
 
         /**
          * If a previous image exists, compare with it. If not set the current image as previous image
