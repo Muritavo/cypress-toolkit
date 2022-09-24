@@ -26,7 +26,8 @@
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc",
-    "test:watch": "cypress open --component --browser chrome"
+    "test:watch": "cypress open --component --browser chrome",
+    "prepack": "npm run build"
   },
   "types": "index.d.ts",
   "dependencies": {
