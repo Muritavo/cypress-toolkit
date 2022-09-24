@@ -66,6 +66,23 @@ Cypress.Commands.add("randomImage", (width: number, height, seed) => {
     return generateImage(widthPts, heightPts, seed);
 })
 
+Cypress.Commands.add('expectRejection', (rejectionFunc: () => Promise<any>, expectedMessage) => {
+    return new Cypress.Promise(async (res, rej) => {
+        try {
+            await rejectionFunc();
+            rej('The provided function did not reject')
+        } catch (e: any) {
+            try {
+                
+                expect(e.toString()).to.include(expectedMessage);
+                res()
+            } catch (e) {
+                rej(e)
+            }
+        }
+    }) as any
+})
+
 cy.delayedSpy = (shouldSucceed, timeout, resolveOrRejectWith) => {
     return cy.spy(() => {
         return new Promise<void>((r, rej) => {

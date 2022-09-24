@@ -35,20 +35,10 @@ declare type MountHookResult<T> = {
     readonly error: Error | null;
 };
 
-type ExtractFromUnionKeys = "wait";
-type OnlyCopy = "contains" | "should" | "and" | "then"
+type ExtractFromUnionKeys = "";
+type OnlyCopy = "contains" | "should" | "and" | "then" | "wait"
 
-type RerenderChain<I, T> = {
-    [k in Exclude<keyof Cypress.Chainable<I, T>, ExtractFromUnionKeys | OnlyCopy>]:
-    Cypress.Chainable<I, T>[k] extends (...args: infer A) => infer R
-    ? (...args: A) => RerenderChain<I, T>
-    : never
-} & {
-        [k in ExtractFromUnionKeys]: (...args: OverloadParameters<Cypress.Chainable<I, T>[k]>) => RerenderChain<I, T>
-    }
-    & {
-        [k in OnlyCopy]: Cypress.Chainable<I, T>[k]
-    }
+type RerenderChain<I, T> = Cypress.Chainable<I, T>
 
 namespace BlockchainOperations {
     type ContractShape = {
@@ -207,6 +197,16 @@ declare namespace Cypress {
          * With this you can call the render function again, with new arguments
          */
         remount: (...props: Parameters<RerenderFunc>) => RerenderChain<Subject, RerenderFunc>
+
+        /**
+         * Expects a rejection from a function call
+         */
+        expectRejection: (asyncFunc: () => Promise<any>, expectedMessage: string) => Cypress.Chainable<void>
+
+        /**
+         * Captures a snapshot of the current HTML
+         */
+        snapshot(): Cypress.Chainable<void>;
     }
     interface CustomTasks extends BlockchainOperations.Tasks, EmulatorOperations.Tasks {
     }
@@ -214,3 +214,26 @@ declare namespace Cypress {
 }
 
 type TasksArgs = import("./src/scripts/tasks").TasksArgs;
+type EachFunction = <T extends Tenant = Tenant, P extends any>(
+    tenantConfig: {
+        [TID in Exclude<Tenant, Exclude<Tenant, T>>]: P
+    },
+    name: string,
+    fn: (a: P) => any
+) => void
+
+declare namespace jest {
+    interface It {
+        eachTenant: EachFunction
+    }
+}
+interface Each {
+    <T extends Array>(iterations: T, title: string, testFn: (element: T[number]) => any): void
+    only: Each
+}
+declare namespace Mocha {
+    interface TestFunction {
+        eachTenant: EachFunction & { only: EachFunction }
+        each: Each
+    }
+}
