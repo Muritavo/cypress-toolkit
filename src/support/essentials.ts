@@ -10,4 +10,5 @@ import "./rendering"
 import "./augmentation/cypress"
 import "./blockchain"
 
+require('@cypress/snapshot').register()
 require("./extensions/it.each")();

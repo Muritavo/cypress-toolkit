@@ -69,15 +69,20 @@ beforeEach(() => {
 })
 
 Cypress.Commands.add('comparePreviousUI', (imageId: string) => {
-    cy.task<boolean>('snapshotExists', {
-        specDirectory: Cypress.spec.name,
-        baseDir: Cypress.env('SNAPSHOT_BASE_DIRECTORY'),
-        diffDir: Cypress.env('SNAPSHOT_DIFF_DIRECTORY'),
-        keepDiff: Cypress.env('ALWAYS_GENERATE_DIFF'),
-        fileName: `${imageId}`,
-    }).then(exists => {
-        alert('exists ' + exists)
-        Cypress.env('type', (exists) ? 'actual' : 'base')
-        cy.compareSnapshot(imageId);
+    cy.window().then(_w => {
+        const doc = _w.parent.document.body;
+        const resolutionBoundId = `${imageId}-${doc.clientWidth}-${doc.clientHeight}`;
+        cy.task<boolean>('snapshotExists', {
+            specDirectory: Cypress.spec.name,
+            baseDir: Cypress.env('SNAPSHOT_BASE_DIRECTORY'),
+            diffDir: Cypress.env('SNAPSHOT_DIFF_DIRECTORY'),
+            keepDiff: Cypress.env('ALWAYS_GENERATE_DIFF'),
+            fileName: `${resolutionBoundId}`,
+        }).then(exists => {
+            alert('exists ' + exists)
+            Cypress.env('type', (exists) ? 'actual' : 'base')
+            cy.compareSnapshot(resolutionBoundId);
+        })
     })
+
 });
