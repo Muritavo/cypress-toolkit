@@ -25,8 +25,8 @@ export const generateImage = function (cols: number, rows: number, strRandom: st
 
     const instance = text2png(template, {
         output: "dataURL",
-        padding: 100,
-        font: '500px monospace',
+        padding: 10,
+        font: '50px monospace',
         color: `rgb(${256 - (rest % 256)}, ${256 - (numFromStr % 256)}, ${256 - (Math.abs(numFromStr - rest) % 256)})`,
         backgroundColor: `rgb(${rest % 256}, ${numFromStr % 256}, ${Math.abs(numFromStr - rest) % 256})`
     })
