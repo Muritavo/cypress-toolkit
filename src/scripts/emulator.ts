@@ -66,6 +66,7 @@ async function startEmulatorTask(args: TasksArgs['StartEmulatorTask']) {
             console.error("Could not receive ok from firebase emulator");
             clearTimeout(timeout);
             rej(new Error("Timeout"))
+            spawnResult = undefined as any
         }, 30000);
 
         log("Process is killed: ", spawnResult.process.killed)
@@ -75,6 +76,7 @@ async function startEmulatorTask(args: TasksArgs['StartEmulatorTask']) {
             clearTimeout(timeout);
             log("Spawning emulator process failed with error", e.message);
             rej(new Error(`Spawning emulator process failed with error ${e.message}`))
+            spawnResult = undefined as any
         })
 
         spawnResult.process.on("message", (e) => {
@@ -85,6 +87,7 @@ async function startEmulatorTask(args: TasksArgs['StartEmulatorTask']) {
             clearTimeout(timeout);
             log("Emulator closed with", e);
             rej(new Error(`Emulator closed with code ${e}. Check the firebse-debug.log for more details`));
+            spawnResult = undefined as any
         })
         while (!breakLoop) {
             try {
@@ -95,7 +98,7 @@ async function startEmulatorTask(args: TasksArgs['StartEmulatorTask']) {
                 breakLoop = true;
                 r(null);
             } catch (e) {
-                log("Process is killed: ", spawnResult.process.killed)
+                log("Process is killed: ", spawnResult?.process.killed)
                 log("Emulator is not ready yet, retrying in 1 sec")
             }
             await WaitTimeout(1000);

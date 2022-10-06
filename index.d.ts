@@ -138,7 +138,7 @@ namespace EmulatorOperations {
         /**
          * Gives access to the admin interface for managing and setting up the emulator environment
          */
-        setupEmulator(setupFunc: (firestore: import("@firebase/rules-unit-testing").RulesTestContext['firestore']) => Promise<void>, project: string): Cypress.Chainable<void>
+        setupEmulator(setupFunc: (firestore: ReturnType<typeof firebase.default.firestore>) => Promise<void>, project: string): Cypress.Chainable<void>
 
         /**
          * Clears a collection so you don't need to manually clean each item
