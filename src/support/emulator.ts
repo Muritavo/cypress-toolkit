@@ -143,7 +143,30 @@ Cypress.Commands.add(
           ctx.firestore({
             experimentalForceLongPolling: true,
           }),
-          ctx.storage(storageBucket)
+          ctx.storage(storageBucket),
+          new Proxy(
+            {},
+            {
+              get: (_, authInterfaceFunctionName) => {
+                return (...params: any[]) => {
+                  for (let param of params)
+                    if (typeof param === "function")
+                      throw new Error(
+                        `The admin is called via proxy to the native node cypress process. A function cannot be passed as parameter to the function ${
+                          authInterfaceFunctionName as string
+                        }`
+                      );
+                  return cy.execTask("invokeAuthAdmin", {
+                    projectId,
+                    port: _getPort("auth").toString(),
+                    functionName:
+                      authInterfaceFunctionName as EmulatorOperations.AdminAuthInterfaceFunctions,
+                    params: params as any,
+                  });
+                };
+              },
+            }
+          ) as any
         );
       });
       r();

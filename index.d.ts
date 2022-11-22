@@ -183,7 +183,8 @@ namespace EmulatorOperations {
     setupEmulator(
       setupFunc: (
         firestore: ReturnType<typeof firebase.default.firestore>,
-        storage: ReturnType<typeof firebase.default.storage>
+        storage: ReturnType<typeof firebase.default.storage>,
+        admin: ReturnType<typeof import("firebase-admin")["auth"]>
       ) => Promise<void>,
       project: string,
       storageBucket?: string
@@ -197,9 +198,23 @@ namespace EmulatorOperations {
       projectName: string
     ): Cypress.Chainable<any>;
   }
+  type Admin = ReturnType<typeof import("firebase-admin")["auth"]>;
+  type KeysWithValsOfType<T, V> = keyof {
+    [P in keyof T as T[P] extends V ? P : never]: P;
+  };
+  type AdminAuthInterfaceFunctions = KeysWithValsOfType<
+    Admin,
+    (...params: any[]) => any
+  >;
   interface Tasks {
     startEmulator: (args: TasksArgs["StartEmulatorTask"]) => Promise<null>;
     killEmulator: () => Promise<null>;
+    invokeAuthAdmin: <F extends AdminAuthInterfaceFunctions>(args: {
+      projectId: string;
+      port: string;
+      functionName: F;
+      params: Parameters<Admin[F]>;
+    }) => Promise<any>;
   }
 }
 
