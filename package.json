@@ -1,6 +1,6 @@
 {
   "name": "@muritavo/cypress-toolkit",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "A series of utility functions for working with cypress (mainly cypress Component testing)",
   "main": "dist/index.js",
   "repository": "git@github.com:Muritavo/cypress-toolkit.git",
@@ -8,6 +8,7 @@
   "license": "MIT",
   "files": [
     "dist",
+    "types",
     "index.d.ts"
   ],
   "devDependencies": {
