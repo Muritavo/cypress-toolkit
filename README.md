@@ -16,7 +16,7 @@ To check the commands, you can take a look at index.d.ts.
 
 Let's hope everything is nicely documented :)
 
-**Contribuition is also welcome**
+**Contribution is also welcome**
 
 # Before using
 
@@ -24,28 +24,35 @@ Let's hope everything is nicely documented :)
 
 # How to use
 
-- Install this library with `yarn add @muritavo/cypress-toolkit`
+- Install this library with `yarn add -D @muritavo/cypress-toolkit`
 - Intercept the webpack config and include this library setup with
 
 ```js
-// cypress.config.{js,ts}
-import setup from "@muritavo/cypress-toolkit/dist/scripts/config.js";
+// cypress.config.ts
+import setup from '@muritavo/cypress-toolkit/dist/scripts/config'
 
 ...
 ...
-module.exports = (on, config) => {
+export default defineConfig({
     ...
+    component: {
+        ...,
+        setupNodeEvents: (on, config) => {
+            ...
+            const config = setup(on, config);
+            ...
+            return config;
+        },
+        ...
+    },
     ...
-    setup(on, config)
-    ...
-    ...
-}
+})
 ```
 
 - Enable the custom commands by including this library like so:
 
 ```js
-// cypress/support/index.js
+// cypress/support/commands.ts
 
-require("@muritavo/cypress-toolkit/dist/support/essentials.js");
+import '@muritavo/cypress-toolkit/dist/support/essentials'
 ```
