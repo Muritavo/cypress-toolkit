@@ -3,6 +3,7 @@ import { spawn, ChildProcess } from "child_process";
 import { TasksArgs } from "./tasks";
 import { initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
+import killPort from "kill-port";
 
 const log = require("debug")("cypress-toolkit/emulator");
 let spawnResult: {
@@ -86,14 +87,36 @@ async function startEmulatorTask(args: TasksArgs["StartEmulatorTask"]) {
       log("Emulator start sent message", e.toString());
     });
 
+    let scriptOutput = "";
+    spawnResult.process.stdout!.on("data", function (data) {
+      data = data.toString();
+      scriptOutput += data;
+    });
+
     spawnResult.process.on("close", (e) => {
       clearTimeout(timeout);
       log("Emulator closed with", e);
-      rej(
-        new Error(
-          `Emulator closed with code ${e}. Check the firebse-debug.log for more details`
-        )
+      const unavailablePorts = args.ports.filter((p) =>
+        scriptOutput.includes(String(p))
       );
+      const failedWithUnavailablePort = unavailablePorts.length;
+      if (failedWithUnavailablePort) {
+        Promise.all(unavailablePorts.map((p) => killPort(p))).then(() => {
+          rej(
+            new Error(
+              `Some ports were unavailable (${unavailablePorts.join(
+                ", "
+              )}). They were killed, please try running the application again`
+            )
+          );
+        });
+      } else {
+        rej(
+          new Error(
+            `Emulator closed with code ${e}. Check the firebse-debug.log for more details`
+          )
+        );
+      }
       spawnResult = undefined as any;
     });
     while (!breakLoop) {

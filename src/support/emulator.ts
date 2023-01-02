@@ -47,6 +47,7 @@ Cypress.Commands.add(
         databaseToImport: databaseToImport,
         UIPort: emulatorConfig.emulators.ui.port || 4000,
         suiteId: suiteId || databaseToImport,
+        ports: Object.values(emulatorConfig.emulators).map(a => a.port)
       })
       .then(() => {
         sessionStorage.setItem("last-database", databaseToImport);

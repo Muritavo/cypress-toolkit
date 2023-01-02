@@ -2926,6 +2926,14 @@
   dependencies:
     "@types/node" "*"
 
+"@types/kill-port@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/kill-port/-/kill-port-2.0.0.tgz#ba28034ace13a1444e7a3428c0a487b4e09322f2"
+  integrity sha512-AegaqABFauES4++49NeNX7TyZJ7t48t10+qJn4QGVGQqDogEk89M0iI4W0HXS+TEUk/hYAtEsgJ+6nyuSyYxlw==
+  dependencies:
+    "@types/node" "*"
+    shell-exec "^1"
+
 "@types/level-errors@*":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/level-errors/-/level-errors-3.0.0.tgz#15c1f4915a5ef763b51651b15e90f6dc081b96a8"
@@ -10673,6 +10681,11 @@ shell-exec@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/shell-exec/-/shell-exec-1.0.2.tgz#2e9361b0fde1d73f476c4b6671fa17785f696756"
   integrity sha512-jyVd+kU2X+mWKMmGhx4fpWbPsjvD53k9ivqetutVW/BQ+WIZoDoP4d8vUMGezV6saZsiNoW2f9GIhg9Dondohg==
+
+shell-exec@^1:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/shell-exec/-/shell-exec-1.1.2.tgz#d4056f96638d8406c8ab498f9f8b28938eba2dd0"
+  integrity sha512-v2NWVDP0ws+S7miKy2oSpJ/OuL6NKuMosPNUZLDWFBlMnBtuoZxZOwxpQJwhsFZgMb+r7frpDTT8p4OSnhkpsg==
 
 side-channel@^1.0.4:
   version "1.0.4"

@@ -11,5 +11,6 @@ export type TasksArgs = {
         databaseToImport?: string,
         UIPort: number,
         suiteId: string
+        ports: number[]
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@muritavo/cypress-toolkit",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "A series of utility functions for working with cypress (mainly cypress Component testing)",
   "main": "dist/index.js",
   "repository": "git@github.com:Muritavo/cypress-toolkit.git",
@@ -22,6 +22,7 @@
   ],
   "devDependencies": {
     "@muritavo/webpack-microfrontend-scripts": "^0.0.22",
+    "@types/kill-port": "^2.0.0",
     "@types/react": "^18.0.14",
     "@types/spellchecker": "^3.5.0",
     "@types/webpack": "^5.28.0",
