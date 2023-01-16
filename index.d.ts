@@ -147,7 +147,7 @@ namespace EmulatorOperations {
       projectName: string,
       databaseToImport?: string,
       suiteId?: string,
-      forceStart?: boolean
+      exportDataOnExit?: boolean
     ): Cypress.Chainable<void>;
 
     /**

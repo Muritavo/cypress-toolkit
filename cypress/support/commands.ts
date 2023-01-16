@@ -35,3 +35,11 @@
 //     }
 //   }
 // }
+import { mount } from "cypress/react";
+import "../../dist/support/essentials";
+
+import { setEmulatorConfig } from "../../dist/support/emulator";
+
+setEmulatorConfig(require("../../firebase.json"));
+
+cy.mount = mount;

@@ -40,14 +40,15 @@ before() {
 
 Cypress.Commands.add(
   "startEmulator",
-  (projectName, databaseToImport = "", suiteId, forceStart) => {
+  (projectName, databaseToImport = "", suiteId, exportDataOnExit = false) => {
     return cy
       .execTask("startEmulator", {
         projectId: projectName,
         databaseToImport: databaseToImport,
         UIPort: emulatorConfig.emulators.ui.port || 4000,
         suiteId: suiteId || databaseToImport,
-        ports: Object.values(emulatorConfig.emulators).map(a => a.port)
+        ports: Object.values(emulatorConfig.emulators).map(a => a.port),
+        shouldSaveData: exportDataOnExit
       })
       .then(() => {
         sessionStorage.setItem("last-database", databaseToImport);

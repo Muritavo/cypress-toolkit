@@ -49,7 +49,7 @@ async function startEmulatorTask(args: TasksArgs["StartEmulatorTask"]) {
     process: spawn(
       `firebase emulators:start -P ${args.projectId} ${
         args.databaseToImport ? `--import ${args.databaseToImport}` : ""
-      }`,
+      } ${args.shouldSaveData ? `--export-on-exit` : ""}`,
       {
         cwd: undefined,
         env: process.env,

@@ -12,5 +12,6 @@ export type TasksArgs = {
         UIPort: number,
         suiteId: string
         ports: number[]
+        shouldSaveData: boolean
     }
 }

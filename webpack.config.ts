@@ -6,4 +6,4 @@
 
 import { createBaseConfiguration } from "@muritavo/webpack-microfrontend-scripts/bin/react/scripts/_webpackConfiguration"
 import { resolve } from "path";
-export default createBaseConfiguration(resolve("."), "development")
+export default createBaseConfiguration(resolve("."), "test")
