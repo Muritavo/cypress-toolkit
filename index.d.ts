@@ -130,6 +130,25 @@ namespace BlockchainOperations {
   }
 }
 
+namespace UtilityOperations {
+  interface Commands {
+    /** Saves some data on the current cypress process */
+    storeData(key: string, value: any): void;
+
+    /** Retrieves some data on the current cypress process */
+    getData(key: string): any;
+
+    /** Removes some data on the current cypress process */
+    clearData(key: string): any;
+  }
+
+  interface Tasks {
+    storeData(arg: { key: string; value: any }): Cypress.Chainable<void>;
+    getData(key: string): Cypress.Chainable<any>;
+    clearData(key: string): Cypress.Chainable<any>;
+  }
+}
+
 namespace EmulatorOperations {
   interface Commands {
     /**
@@ -221,7 +240,8 @@ namespace EmulatorOperations {
 declare namespace Cypress {
   interface Chainable<Subject = any, RerenderFunc = any>
     extends BlockchainOperations.Commands<Subject>,
-      EmulatorOperations.Commands {
+      EmulatorOperations.Commands,
+      UtilityOperations.Commands {
     /**
      * This finds an element based on their testids
      */
@@ -301,7 +321,8 @@ declare namespace Cypress {
   }
   interface CustomTasks
     extends BlockchainOperations.Tasks,
-      EmulatorOperations.Tasks {}
+      EmulatorOperations.Tasks,
+      UtilityOperations.Tasks {}
   interface Tasks extends CustomTasks {}
 }
 
