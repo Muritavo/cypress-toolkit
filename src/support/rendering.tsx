@@ -83,3 +83,56 @@ Cypress.Commands.add("mountChain", function renderChain(renderFunc) {
 Cypress.Commands.add("remount" as any, function (...props) {
   return currRenderFunc(...props);
 });
+Cypress.Commands.add(
+  "inViewport",
+  {
+    prevSubject: true,
+  },
+  (selector: JQuery<HTMLElement>, mode = "dimension-wise") => {
+    function checkElementInScreen(el: HTMLElement) {
+      cy.window().then((window) => {
+        const { documentElement } = window.document;
+        const bottom = documentElement.clientHeight + 10;
+        const right = documentElement.clientWidth + 10;
+        const rect = el.getBoundingClientRect();
+
+        const isWidthInbound =
+          Number(rect.right.toFixed(0)) < right &&
+          Number(rect.left.toFixed(0)) >= 0;
+
+        const isHeightInBound =
+          Number(rect.top.toFixed(0)) >= 0 &&
+          Number(rect.bottom.toFixed(0)) < bottom;
+
+        let isInsideView = true;
+        switch (mode) {
+          case "dimension-wise":
+            isInsideView = isWidthInbound && isHeightInBound;
+            break;
+          case "height-wise":
+            isInsideView = isHeightInBound;
+            break;
+          case "width-wise":
+            isInsideView = isWidthInbound;
+            break;
+        }
+
+        if (isInsideView) {
+          expect("Element is inside screen").equal("Element is inside screen");
+        } else {
+          throw new Error(
+            "Element is not fully on visible page, should you scroll before asserting?"
+          );
+        }
+      });
+    }
+    const els = selector.get();
+    if (els.length === 0)
+      throw new Error(
+        "No element to validate visibility, you sure the selector is right?"
+      );
+    for (let el of els) {
+      checkElementInScreen(el);
+    }
+  }
+);

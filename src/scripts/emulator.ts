@@ -26,7 +26,7 @@ async function killEmulator() {
       const t = setTimeout(() => {
         spawnResult = undefined as any;
         rej(new Error("Couldn't kill emulator"));
-      }, 10000);
+      }, 20000);
       spawnResult.process.on("close", () => {
         clearTimeout(t);
         r(null);
@@ -101,7 +101,15 @@ async function startEmulatorTask(args: TasksArgs["StartEmulatorTask"]) {
       );
       const failedWithUnavailablePort = unavailablePorts.length;
       if (failedWithUnavailablePort) {
-        Promise.all(unavailablePorts.map((p) => killPort(p))).then(() => {
+        log(
+          "Killing ports",
+          unavailablePorts,
+          "detected from text",
+          scriptOutput
+        );
+        Promise.all(
+          unavailablePorts.map((p) => killPort(p).catch(() => {}))
+        ).then(() => {
           rej(
             new Error(
               `Some ports were unavailable (${unavailablePorts.join(

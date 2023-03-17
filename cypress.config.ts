@@ -13,6 +13,13 @@ export default defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
       // implement node event listeners here
+
+      on("task", {
+        killWithCrash: () => {
+          require("kill-port")(15000).catch(() => {});
+        },
+      });
+
       return configSetup(on, config);
     },
   },

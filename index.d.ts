@@ -149,6 +149,17 @@ namespace UtilityOperations {
   }
 }
 
+namespace RenderingOperations {
+  interface Commands {
+    /**
+     * Checks if an element is visible in the viewport
+     *
+     * **OVERFLOW ELEMENTS CAN BE DETECTED AS VISIBLE IN THE VIEWPORT. TAKE CARE WHEN USING THIS FUNCTION**
+     */
+    inViewport(): void;
+  }
+}
+
 namespace EmulatorOperations {
   interface Commands {
     /**
@@ -241,6 +252,7 @@ declare namespace Cypress {
   interface Chainable<Subject = any, RerenderFunc = any>
     extends BlockchainOperations.Commands<Subject>,
       EmulatorOperations.Commands,
+      RenderingOperations.Commands,
       UtilityOperations.Commands {
     /**
      * This finds an element based on their testids
