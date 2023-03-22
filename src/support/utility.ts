@@ -1,7 +1,11 @@
-var text2png = require("text2png");
+var _text2png: any;
 
 const firstEmoji = 0x1f604;
 const emojisCount = 0x1f64f - firstEmoji;
+
+export function text2png() {
+  return _text2png || (_text2png = require("text2png"))
+}
 
 /**
  * Generates an random colored image with specified width, height and quality
@@ -31,7 +35,7 @@ export const generateImage = function (
     template += "\n";
   }
 
-  const instance = text2png(template, {
+  const instance = text2png()(template, {
     output: "dataURL",
     padding: 10,
     font: "50px monospace",
