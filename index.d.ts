@@ -227,6 +227,15 @@ namespace EmulatorOperations {
       collectionPath: string,
       projectName: string
     ): Cypress.Chainable<any>;
+
+    /**
+     * Deletes all files from the storage emulator
+     */
+    clearEmulatorStorage(
+      projectName: string,
+      storageBucket: string,
+      folder: string
+    ): Cypress.Chainable<any>;
   }
   type Admin = ReturnType<typeof import("firebase-admin")["auth"]>;
   type KeysWithValsOfType<T, V> = keyof {

@@ -47,8 +47,8 @@ Cypress.Commands.add(
         databaseToImport: databaseToImport,
         UIPort: emulatorConfig.emulators.ui.port || 4000,
         suiteId: suiteId || databaseToImport,
-        ports: Object.values(emulatorConfig.emulators).map(a => a.port),
-        shouldSaveData: exportDataOnExit
+        ports: Object.values(emulatorConfig.emulators).map((a) => a.port),
+        shouldSaveData: exportDataOnExit,
       })
       .then(() => {
         sessionStorage.setItem("last-database", databaseToImport);
@@ -122,6 +122,25 @@ Cypress.Commands.add(
           rej(e);
         });
     }) as any;
+  }
+);
+
+Cypress.Commands.add(
+  "clearEmulatorStorage",
+  (projectId, storageBucket, folder) => {
+    cy.setupEmulator(
+      async (_f, s) => {
+        async function removeFiles(path: string) {
+          const files = await s.ref(path).listAll();
+          for (let preffix of files.prefixes)
+            await removeFiles([path, preffix.name].join("/"));
+          for (let file of files.items) await file.delete();
+        }
+        await removeFiles(folder);
+      },
+      projectId,
+      storageBucket
+    );
   }
 );
 
