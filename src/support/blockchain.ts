@@ -27,14 +27,15 @@ Cypress.Commands.add("startBlockchain", function (projectRootFolder) {
     });
 })
 
-Cypress.Commands.add("deployContract", function deploy(contractName, abi, ...args) {
+Cypress.Commands.add("deployContract", function deploy(_contractName, abi, ...args) {
+    const [contractName, saveAs] = typeof _contractName === "string" ? [_contractName, _contractName] : _contractName
     const ctx = this;
     const contracts = ctx.contracts = ctx.contracts || blockchainInfoContext.contracts;
     return cy.execTask("deployContract", { contractName, args: args.map(a => typeof a === "function" ? a(contracts) : a) }).then(({
         address,
         owner
     }) => {
-        contracts[contractName] = {
+        contracts[saveAs] = {
             address: address.toLowerCase(),
             owner: owner.toLowerCase(),
             contract: new web3.eth.Contract(abi as any, address)

@@ -36,7 +36,7 @@
     "react-dom": "^18.2.0",
     "spellchecker": "^3.7.1",
     "text2png": "^2.3.0",
-    "typescript": "^4.7.4"
+    "typescript": "^5.0.3"
   },
   "scripts": {
     "dev": "tsc --watch",

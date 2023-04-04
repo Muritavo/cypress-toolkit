@@ -12,17 +12,17 @@ type OverloadUnionRecursive<
   TPartialOverload = unknown
 > = TOverload extends (...args: infer TArgs) => infer TReturn
   ? // Prevent infinite recursion by stopping recursion when TPartialOverload
-    // has accumulated all of the TOverload signatures.
-    TPartialOverload extends TOverload
-    ? never
-    :
-        | OverloadUnionRecursive<
-            TPartialOverload & TOverload,
-            TPartialOverload &
-              ((...args: TArgs) => TReturn) &
-              OverloadProps<TOverload>
-          >
-        | ((...args: TArgs) => TReturn)
+  // has accumulated all of the TOverload signatures.
+  TPartialOverload extends TOverload
+  ? never
+  :
+  | OverloadUnionRecursive<
+    TPartialOverload & TOverload,
+    TPartialOverload &
+    ((...args: TArgs) => TReturn) &
+    OverloadProps<TOverload>
+  >
+  | ((...args: TArgs) => TReturn)
   : never;
 
 // Inferring a union of parameter tuples or return types is now possible.
@@ -73,9 +73,9 @@ namespace BlockchainOperations {
   > = true extends N
     ? []
     : [
-        F | ((contracts: A["contracts"]) => F),
-        ...TupleToFunctionTuple<A, ArrayExceptFirst<T>>
-      ];
+      F | ((contracts: A["contracts"]) => F),
+      ...TupleToFunctionTuple<A, ArrayExceptFirst<T>>
+    ];
   interface Commands<A extends any = any> {
     /**
      * This will start up a server to deploy the contracts into
@@ -92,14 +92,14 @@ namespace BlockchainOperations {
      * @param contractName The name of the contract
      * @param initializationArgs The arguments for initializing the contract ("calls the initialize method")
      */
-    deployContract<ABI extends readonly any[], CN extends string>(
+    deployContract<ABI extends readonly any[], const CN extends (string | readonly [ContractName: string, Identifier: string])>(
       contractName: CN,
       abi: ABI,
       ...initializationArgs: (any | ((ctr: A["contracts"]) => any))[]
     ): Cypress.Chainable<
       (A extends {} ? (A extends undefined ? {} : A) : {}) & {
         contracts: A["contracts"] & {
-          [s in typeof contractName]: BlockchainContract<ABI>;
+          [s in CN extends string ? CN : CN[1]]: BlockchainContract<ABI>;
         };
       }
     >;
@@ -260,9 +260,9 @@ namespace EmulatorOperations {
 declare namespace Cypress {
   interface Chainable<Subject = any, RerenderFunc = any>
     extends BlockchainOperations.Commands<Subject>,
-      EmulatorOperations.Commands,
-      RenderingOperations.Commands,
-      UtilityOperations.Commands {
+    EmulatorOperations.Commands,
+    RenderingOperations.Commands,
+    UtilityOperations.Commands {
     /**
      * This finds an element based on their testids
      */
@@ -306,8 +306,8 @@ declare namespace Cypress {
       options?: Partial<Loggable & Timeoutable>
     ): Chainable<
       Awaited<ReturnType<Cypress.CustomTasks[E]>> extends null
-        ? void
-        : Awaited<ReturnType<Cypress.CustomTasks[E]>>
+      ? void
+      : Awaited<ReturnType<Cypress.CustomTasks[E]>>
     >;
 
     /**
@@ -342,9 +342,9 @@ declare namespace Cypress {
   }
   interface CustomTasks
     extends BlockchainOperations.Tasks,
-      EmulatorOperations.Tasks,
-      UtilityOperations.Tasks {}
-  interface Tasks extends CustomTasks {}
+    EmulatorOperations.Tasks,
+    UtilityOperations.Tasks { }
+  interface Tasks extends CustomTasks { }
 }
 
 type TasksArgs = import("./src/scripts/tasks").TasksArgs;
