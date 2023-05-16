@@ -40,7 +40,13 @@ before() {
 
 Cypress.Commands.add(
   "startEmulator",
-  (projectName, databaseToImport = "", suiteId, exportDataOnExit = false) => {
+  (
+    projectName,
+    databaseToImport = "",
+    suiteId,
+    exportDataOnExit = false,
+    only = []
+  ) => {
     return cy
       .execTask("startEmulator", {
         projectId: projectName,
@@ -49,6 +55,7 @@ Cypress.Commands.add(
         suiteId: suiteId || databaseToImport,
         ports: Object.values(emulatorConfig.emulators).map((a) => a.port),
         shouldSaveData: exportDataOnExit,
+        only,
       })
       .then(() => {
         sessionStorage.setItem("last-database", databaseToImport);
@@ -146,7 +153,11 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   "setupEmulator",
-  (cb: Parameters<typeof cy["setupEmulator"]>[0], projectId, storageBucket) => {
+  (
+    cb: Parameters<(typeof cy)["setupEmulator"]>[0],
+    projectId,
+    storageBucket
+  ) => {
     return new Cypress.Promise<void>(async (r) => {
       const testEnv = await initializeTestEnvironment({
         projectId: projectId,

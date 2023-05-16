@@ -38,7 +38,10 @@ async function killEmulator() {
     }
   });
 }
-async function startEmulatorTask(args: TasksArgs["StartEmulatorTask"]) {
+async function startEmulatorTask(
+  args: TasksArgs["StartEmulatorTask"],
+  retryIntent: boolean = false
+) {
   log("Spawning emulator process");
   if (args.suiteId === spawnResult?.id) return null;
   else await killEmulator();
@@ -49,7 +52,9 @@ async function startEmulatorTask(args: TasksArgs["StartEmulatorTask"]) {
     process: spawn(
       `firebase emulators:start -P ${args.projectId} ${
         args.databaseToImport ? `--import ${args.databaseToImport}` : ""
-      } ${args.shouldSaveData ? `--export-on-exit` : ""}`,
+      } ${args.shouldSaveData ? `--export-on-exit` : ""} ${
+        args.only.length ? `--only=${args.only.join(",")}` : ""
+      }`,
       {
         cwd: undefined,
         env: process.env,
@@ -110,13 +115,15 @@ async function startEmulatorTask(args: TasksArgs["StartEmulatorTask"]) {
         Promise.all(
           unavailablePorts.map((p) => killPort(p).catch(() => {}))
         ).then(() => {
-          rej(
-            new Error(
-              `Some ports were unavailable (${unavailablePorts.join(
-                ", "
-              )}). They were killed, please try running the application again`
-            )
-          );
+          if (!retryIntent) return startEmulatorTask(args, true);
+          else
+            rej(
+              new Error(
+                `Some ports were unavailable (${unavailablePorts.join(
+                  ", "
+                )}). They were killed, please try running the application again`
+              )
+            );
         });
       } else {
         rej(
