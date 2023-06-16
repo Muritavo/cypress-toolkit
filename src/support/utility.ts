@@ -4,7 +4,7 @@ const firstEmoji = 0x1f604;
 const emojisCount = 0x1f64f - firstEmoji;
 
 export function text2png() {
-  return _text2png || (_text2png = require("text2png"))
+  return _text2png || (_text2png = require("text2png"));
 }
 
 /**
@@ -106,18 +106,28 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("storeData", (k, v) => {
-  cy.execTask("storeData", {
-    key: k,
-    value: v,
-  });
+  cy.execTask(
+    "storeData",
+    {
+      key: k,
+      value: v,
+    },
+    {
+      log: false,
+    }
+  );
 });
 
 Cypress.Commands.add("getData", (k) => {
-  cy.execTask("getData", k);
+  cy.execTask("getData", k, {
+    log: false,
+  });
 });
 
 Cypress.Commands.add("clearData", (k) => {
-  cy.execTask("clearData", k);
+  cy.execTask("clearData", k, {
+    log: false,
+  });
 });
 
 cy.delayedSpy = (shouldSucceed, timeout, resolveOrRejectWith) => {

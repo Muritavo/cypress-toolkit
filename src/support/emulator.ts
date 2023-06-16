@@ -15,7 +15,9 @@ export function setEmulatorConfig(config: FirebaseConfigShape) {
 }
 
 export const killEmulator = () => {
-  cy.execTask("killEmulator");
+  cy.execTask("killEmulator", undefined, {
+    log: false,
+  });
 };
 
 function _getPort(emulator: keyof FirebaseConfigShape["emulators"]) {
@@ -48,15 +50,21 @@ Cypress.Commands.add(
     only = []
   ) => {
     return cy
-      .execTask("startEmulator", {
-        projectId: projectName,
-        databaseToImport: databaseToImport,
-        UIPort: emulatorConfig.emulators.ui.port || 4000,
-        suiteId: suiteId || databaseToImport,
-        ports: Object.values(emulatorConfig.emulators).map((a) => a.port),
-        shouldSaveData: exportDataOnExit,
-        only,
-      })
+      .execTask(
+        "startEmulator",
+        {
+          projectId: projectName,
+          databaseToImport: databaseToImport,
+          UIPort: emulatorConfig.emulators.ui.port || 4000,
+          suiteId: suiteId || databaseToImport,
+          ports: Object.values(emulatorConfig.emulators).map((a) => a.port),
+          shouldSaveData: exportDataOnExit,
+          only,
+        },
+        {
+          log: false,
+        }
+      )
       .then(() => {
         sessionStorage.setItem("last-database", databaseToImport);
       });
@@ -188,13 +196,19 @@ Cypress.Commands.add(
                           authInterfaceFunctionName as string
                         }`
                       );
-                  return cy.execTask("invokeAuthAdmin", {
-                    projectId,
-                    port: _getPort("auth").toString(),
-                    functionName:
-                      authInterfaceFunctionName as EmulatorOperations.AdminAuthInterfaceFunctions,
-                    params: params as any,
-                  });
+                  return cy.execTask(
+                    "invokeAuthAdmin",
+                    {
+                      projectId,
+                      port: _getPort("auth").toString(),
+                      functionName:
+                        authInterfaceFunctionName as EmulatorOperations.AdminAuthInterfaceFunctions,
+                      params: params as any,
+                    },
+                    {
+                      log: false,
+                    }
+                  );
                 };
               },
             }

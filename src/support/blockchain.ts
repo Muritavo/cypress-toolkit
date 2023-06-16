@@ -13,7 +13,9 @@ let blockchainInfoContext: {
 }
 
 Cypress.Commands.add("startBlockchain", function (projectRootFolder) {
-    return cy.execTask("startBlockchain", projectRootFolder).then((wallets) => {
+    return cy.execTask("startBlockchain", projectRootFolder, {
+        log: false
+    }).then((wallets) => {
         blockchainInfoContext.wallets = wallets;
         (window as any).ethereum = "ws://localhost:15000"
         web3 = new Web3((window as any).ethereum)
@@ -31,7 +33,9 @@ Cypress.Commands.add("deployContract", function deploy(_contractName, abi, ...ar
     const [contractName, saveAs] = typeof _contractName === "string" ? [_contractName, _contractName] : _contractName
     const ctx = this;
     const contracts = ctx.contracts = ctx.contracts || blockchainInfoContext.contracts;
-    return cy.execTask("deployContract", { contractName, args: args.map(a => typeof a === "function" ? a(contracts) : a) }).then(({
+    return cy.execTask("deployContract", { contractName, args: args.map(a => typeof a === "function" ? a(contracts) : a) }, {
+        log: false
+    }).then(({
         address,
         owner
     }) => {

@@ -101,13 +101,7 @@ namespace BlockchainOperations {
       contractName: CN,
       abi: ABI,
       ...initializationArgs: (any | ((ctr: A["contracts"]) => any))[]
-    ): Cypress.Chainable<
-      (A extends {} ? (A extends undefined ? {} : A) : {}) & {
-        contracts: A["contracts"] & {
-          [s in CN extends string ? CN : CN[1]]: BlockchainContract<ABI>;
-        };
-      }
-    >;
+    ): Cypress.DeployContractResult<A, ABI, CN>
 
     invokeContract<
       CN extends keyof A["contracts"],
@@ -351,6 +345,14 @@ declare namespace Cypress {
       EmulatorOperations.Tasks,
       UtilityOperations.Tasks {}
   interface Tasks extends CustomTasks {}
+
+  type DeployContractResult<A, ABI, CN> = Cypress.Chainable<
+    (A extends {} ? (A extends undefined ? {} : A) : {}) & {
+      contracts: A["contracts"] & {
+        [s in CN extends string ? CN : CN[1]]: BlockchainOperations.BlockchainContract<ABI>;
+      };
+    }
+  >;
 }
 
 type TasksArgs = import("./src/scripts/tasks").TasksArgs;
