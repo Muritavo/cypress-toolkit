@@ -52,6 +52,16 @@ Cypress.Commands.add("invokeContract", function invoke(walletOrFn, contractName,
     const ctx = blockchainInfoContext;
     const wallet = typeof walletOrFn === 'string' ? walletOrFn : walletOrFn(ctx.contracts, ctx.wallets);
     const contract: GenericContract<any> = ctx.contracts[contractName as string].contract;
+    const abiDefinition = (contract as any)._jsonInterface.find((a: any) => a.name === contractMethodName)
+    const state = abiDefinition.stateMutability
+
+    if (state === "view")
+        return new Cypress.Promise(r => {
+            (contract.methods[contractMethodName as string] as any)(...params.map(a => typeof a === "function" ? a(ctx.contracts) : a)).call().then((result: any) =>
+                r(result)
+            )
+        })
+
     const call: any = (contract.methods[contractMethodName as string] as any)(...params.map(a => typeof a === "function" ? a(ctx.contracts) : a)).send({
         from: wallet,
         gas: 90000000,
