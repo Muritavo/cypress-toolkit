@@ -9,6 +9,7 @@ import "./utility"
 import "./rendering"
 import "./augmentation/cypress"
 import "./blockchain"
+import "./interaction"
 
 require('@cypress/snapshot').register()
 require("./extensions/it.each")();
