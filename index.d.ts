@@ -1,6 +1,7 @@
 /// <reference types="cypress-real-events"/>
 /// <reference types="cypress-wait-until"/>
 /// <reference types="cypress-file-upload"/>
+/// <reference types="cypress-visual-regression"/>
 
 type mountFunc = typeof import("cypress/react")["mountHook"];
 type FunctionComponent = typeof import("react")["FunctionComponent"];
