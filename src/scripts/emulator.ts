@@ -4,6 +4,7 @@ import { TasksArgs } from "./tasks";
 import { initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import killPort from "kill-port";
+import { LOCALHOST_DOMAIN } from "../consts";
 
 const log = require("debug")("cypress-toolkit/emulator");
 let spawnResult: {
@@ -137,12 +138,13 @@ async function startEmulatorTask(
     while (!breakLoop) {
       try {
         log("Checking if emulator is up");
-        await nodeFetch(`http://localhost:${args.UIPort}`);
+        await nodeFetch(`http://${LOCALHOST_DOMAIN}:${args.UIPort}`);
         log("Emulator is up and ready");
         clearTimeout(timeout);
         breakLoop = true;
         r(null);
       } catch (e) {
+        log(e);
         log("Process is killed: ", spawnResult?.process.killed);
         log("Emulator is not ready yet, retrying in 1 sec");
       }
@@ -186,7 +188,7 @@ let adminApp: {
   [projectId: string]: ReturnType<typeof initializeApp>;
 } = {};
 function _getAuthAdminInstance(projectId: string, authPort: string) {
-  process.env.FIREBASE_AUTH_EMULATOR_HOST = "localhost:" + authPort;
+  process.env.FIREBASE_AUTH_EMULATOR_HOST = `${LOCALHOST_DOMAIN}:${authPort}`;
   adminApp[projectId] =
     adminApp[projectId] || initializeApp({ projectId }, projectId);
   return getAuth(adminApp[projectId]);

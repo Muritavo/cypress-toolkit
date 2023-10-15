@@ -8,6 +8,7 @@ import {
 } from "@firebase/rules-unit-testing";
 import nodeFetch from "node-fetch";
 import { FirebaseConfigShape } from "./emulator.types";
+import { LOCALHOST_DOMAIN } from "../consts";
 
 let emulatorConfig: FirebaseConfigShape;
 export function setEmulatorConfig(config: FirebaseConfigShape) {
@@ -80,7 +81,7 @@ Cypress.Commands.add("clearFirestore", (projectId: string) => {
     const testEnv = await initializeTestEnvironment({
       projectId: projectId,
       firestore: {
-        host: "localhost",
+        host: LOCALHOST_DOMAIN,
         port: _getPort("firestore"),
       },
     });
@@ -93,7 +94,7 @@ Cypress.Commands.add("clearFirestore", (projectId: string) => {
 Cypress.Commands.add("clearAuth", (projectId: string) => {
   return new Cypress.Promise(async (r, rej) => {
     await nodeFetch(
-      `http://localhost:${_getPort(
+      `http://${LOCALHOST_DOMAIN}:${_getPort(
         "auth"
       )}/emulator/v1/projects/${projectId}/accounts`,
       {
@@ -113,7 +114,7 @@ Cypress.Commands.add(
   (email: string, password, projectId, localId) => {
     return new Cypress.Promise<void>(async (r, rej) => {
       nodeFetch(
-        `http://localhost:${_getPort(
+        `http://${LOCALHOST_DOMAIN}:${_getPort(
           "auth"
         )}/identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts`,
         {
@@ -170,11 +171,11 @@ Cypress.Commands.add(
       const testEnv = await initializeTestEnvironment({
         projectId: projectId,
         firestore: {
-          host: "localhost",
+          host: LOCALHOST_DOMAIN,
           port: _getPort("firestore"),
         },
         storage: {
-          host: "localhost",
+          host: LOCALHOST_DOMAIN,
           port: _getPort("storage"),
         },
       });
@@ -223,7 +224,7 @@ Cypress.Commands.add(
 Cypress.Commands.add("deleteCollection", (path, project) => {
   return new Cypress.Promise<any>(async (r, rej) => {
     nodeFetch(
-      `http://localhost:${_getPort(
+      `http://${LOCALHOST_DOMAIN}:${_getPort(
         "firestore"
       )}/emulator/v1/projects/${project}/databases/(default)/documents${path}`,
       {
