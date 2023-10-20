@@ -17,4 +17,12 @@ export type TasksArgs = {
       | ("functions" | "hosting" | "firestore" | "storage" | "auth")[]
       | string[];
   };
+
+  /**
+   * Task for reading a file that possible doesn't exists
+   */
+  readFileMaybe: {
+    filepath: string,
+    encoding?: BufferEncoding
+  }
 };

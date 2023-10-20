@@ -172,7 +172,7 @@ namespace RenderingOperations {
      *
      * **OVERFLOW ELEMENTS CAN BE DETECTED AS VISIBLE IN THE VIEWPORT. TAKE CARE WHEN USING THIS FUNCTION**
      */
-    inViewport(mode?: 'dimension-wise' | 'width-wise' | 'height-wise'): void;
+    inViewport(mode?: "dimension-wise" | "width-wise" | "height-wise"): void;
   }
 }
 
@@ -274,6 +274,20 @@ namespace EmulatorOperations {
   }
 }
 
+namespace FileManagementOperations {
+  interface Commands {
+    /**
+     * Reads a file that maybe doesn't exist
+     * If it exists, returns it's content, if it doesn't returns null
+     */
+    readOptionalFile(filepath: string, encoding?: BufferEncoding): Cypress.Chainable<string | null>;
+  }
+
+  interface Tasks {
+    readFileMaybe: (args: TasksArgs['readFileMaybe']) => Promise<string | null>;
+  }
+}
+
 namespace InteractionOperations {
   interface Commands {
     /**
@@ -291,7 +305,8 @@ declare namespace Cypress {
       EmulatorOperations.Commands,
       RenderingOperations.Commands,
       UtilityOperations.Commands,
-      InteractionOperations.Commands {
+      InteractionOperations.Commands,
+      FileManagementOperations.Commands {
     /**
      * This finds an element based on their testids
      */
@@ -372,7 +387,8 @@ declare namespace Cypress {
   interface CustomTasks
     extends BlockchainOperations.Tasks,
       EmulatorOperations.Tasks,
-      UtilityOperations.Tasks {}
+      UtilityOperations.Tasks,
+      FileManagementOperations.Tasks {}
   interface Tasks extends CustomTasks {}
 
   type DeployContractResult<A, ABI, CN> = Cypress.Chainable<
