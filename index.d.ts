@@ -2,6 +2,7 @@
 /// <reference types="cypress-wait-until"/>
 /// <reference types="cypress-file-upload"/>
 /// <reference types="cypress-visual-regression"/>
+/// <reference path="./types/ai.d.ts"/>
 
 type mountFunc = typeof import("cypress/react")["mountHook"];
 type FunctionComponent = typeof import("react")["FunctionComponent"];
@@ -280,11 +281,14 @@ namespace FileManagementOperations {
      * Reads a file that maybe doesn't exist
      * If it exists, returns it's content, if it doesn't returns null
      */
-    readOptionalFile(filepath: string, encoding?: BufferEncoding): Cypress.Chainable<string | null>;
+    readOptionalFile(
+      filepath: string,
+      encoding?: BufferEncoding
+    ): Cypress.Chainable<string | null>;
   }
 
   interface Tasks {
-    readFileMaybe: (args: TasksArgs['readFileMaybe']) => Promise<string | null>;
+    readFileMaybe: (args: TasksArgs["readFileMaybe"]) => Promise<string | null>;
   }
 }
 
@@ -306,7 +310,8 @@ declare namespace Cypress {
       RenderingOperations.Commands,
       UtilityOperations.Commands,
       InteractionOperations.Commands,
-      FileManagementOperations.Commands {
+      FileManagementOperations.Commands,
+      AIOperations.Commands {
     /**
      * This finds an element based on their testids
      */

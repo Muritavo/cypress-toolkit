@@ -54,6 +54,7 @@
     "@truffle/compile-solidity": "^6.0.34",
     "@types/find-cache-dir": "^3.2.1",
     "@types/node-fetch": "^2.6.2",
+    "babel-plugin-import": "^1.13.8",
     "babel-plugin-istanbul": "^6.1.1",
     "cypress-file-upload": "^5.0.8",
     "cypress-real-events": "^1.7.0",

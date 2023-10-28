@@ -11,6 +11,7 @@ import "./augmentation/cypress";
 import "./blockchain";
 import "./interaction";
 import "./file-management";
+import "./ai";
 
 require("@cypress/snapshot").register();
 require("./extensions/it.each")();
