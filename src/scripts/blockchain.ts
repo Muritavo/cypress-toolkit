@@ -69,10 +69,12 @@ async function deployContract({
   contractName: string;
   args: any[];
 }) {
-  if (instance!.contracts[contractName]) {
-    return instance!.contracts[contractName];
-  } else {
-    logger(`Deploying contract ${contractName} with parameters ${args}`);
+  logger(
+    `Deploying contract ${contractName} with ${args.length} parameters ${args
+      .map((a) => `${a} (${Array.isArray(a) ? "array" : typeof a})`)
+      .join(", ")}`
+  );
+  try {
     const { ethers } = initHardhat(instance!.rootFolder);
     const [owner] = await ethers.getSigners();
     const Factory = await ethers.getContractFactory(contractName);
@@ -83,8 +85,8 @@ async function deployContract({
       logger(`Initializing contract with owner ${owner} and args ${args}`);
       const connection = lock.connect(owner);
       const initializationKey =
-        Object.keys(connection.functions).find((a) =>
-          a.split(",", args.length) && a.startsWith("initialize(")
+        Object.keys(connection.functions).find(
+          (a) => a.split(",", args.length) && a.startsWith("initialize(")
         ) || "initialize";
       if (connection[initializationKey])
         await connection[initializationKey](...args);
@@ -93,6 +95,9 @@ async function deployContract({
       address: lock.address,
       owner: owner.address,
     };
+  } catch (e) {
+    logger(`Something has gone wrong`, e);
+    throw e;
   }
 }
 

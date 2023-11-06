@@ -74,10 +74,14 @@ namespace BlockchainOperations {
     N = [F] extends [undefined] ? true : false
   > = true extends N
     ? []
-    : [
-        F | ((contracts: A["contracts"]) => F),
-        ...TupleToFunctionTuple<A, ArrayExceptFirst<T>>
-      ];
+    :
+        | [F, ...TupleToFunctionTuple<A, ArrayExceptFirst<T>>]
+        | [
+            [
+              (contracts: A["contracts"]) => F,
+              ...TupleToFunctionTuple<A, ArrayExceptFirst<T>>
+            ]
+          ];
   interface Commands<A extends any = any> {
     /**
      * This will start up a server to deploy the contracts into
@@ -283,7 +287,8 @@ namespace FileManagementOperations {
      */
     readOptionalFile(
       filepath: string,
-      encoding?: BufferEncoding
+      encoding?: BufferEncoding,
+      options?: Cypress.Loggable
     ): Cypress.Chainable<string | null>;
   }
 

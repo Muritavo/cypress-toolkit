@@ -7,7 +7,7 @@ import {
 } from "web3-eth-contract";
 import { AbiItem } from "web3-utils";
 
-export type AllABIs = OnepercentUtility.ApplicationABIs;
+export type AllABIs = readonly any[];
 
 type ExtractMethods<A extends AllABIs[number]> = A extends {
   type: "function";
@@ -25,8 +25,10 @@ type TypeOrInternalType<T> = T['internalType'] extends unknown ? T['type'] : T['
 
 export type MapTypeToJS<L, C> =
   L extends "tuple[]" ? TuplifyUnion<C[number], C[number]['name']>[] :
-  L extends "address" | "uint256" | "uint128" | "uint8" | "string" | "bytes32"
+  L extends "address" | "uint256" | "uint128" | "uint8" | "string" | "bytes32" | "uint64"
   ? string
+  : L extends "uint256[]" | "string[]"
+  ? string[]
   : L extends "bool"
   ? boolean
   : L extends 'tuple'
@@ -140,6 +142,8 @@ export class GenericContract<
     return super.getPastEvents(event, options, callback) as any;
   }
 }
+
+export default GenericContract;
 
 export type GenericEventData<E extends AllABIs> = EventData & GenericEvent<E>;
 

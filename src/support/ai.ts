@@ -4,7 +4,10 @@ import { buildPrompt } from "../utility/localai";
 function hashStr(str: string) {
   const hasher = createHash("md5");
   hasher.write(str);
-  return hasher.digest().toString("base64").replace(/[^a-zA-Z0-9]/g, "");
+  return hasher
+    .digest()
+    .toString("base64")
+    .replace(/[^a-zA-Z0-9]/g, "");
 }
 
 Cypress.Commands.add(
@@ -58,7 +61,7 @@ Cypress.Commands.add(
               size: `${width}x${height}`,
               response_format: "b64_json",
             },
-            timeout: 120000,
+            timeout: 240000,
           })
           .then((response) => {
             const generatedImageUrl = Buffer.from(
