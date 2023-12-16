@@ -1,5 +1,7 @@
-import { server } from "ganache";
-const logger = require("debug")("cypress-toolkit/blockchain");
+import ganache from "ganache";
+import debug from "debug";
+const { server } = ganache;
+const logger = debug("cypress-toolkit/blockchain");
 
 // This register the tasks for deploying a hardhat blockchain
 type Addresses = {
@@ -11,7 +13,7 @@ type Addresses = {
 };
 let instance: {
   process: ReturnType<typeof server>;
-  rootFolder: string;
+  rootFolder?: string;
   contracts: {
     [id: string]: {
       address: string;
@@ -20,11 +22,11 @@ let instance: {
   addresses: Addresses;
 } | null;
 
-async function startBlockchain(projectFolder: string) {
+async function startBlockchain(projectFolder?: string) {
   if (instance) {
     return instance.addresses;
   }
-  logger(`Starting blockchain server at "${projectFolder}"`);
+  if (projectFolder) logger(`Starting blockchain server at "${projectFolder}"`);
   /**
    * This will start a hardhat node
    */
@@ -75,6 +77,10 @@ async function deployContract({
       .join(", ")}`
   );
   try {
+    if (!instance?.rootFolder)
+      throw new Error(
+        `You are trying to deploy a contract without defining the Blockchain Project folder. Please define it at startBlockchain command.`
+      );
     const { ethers } = initHardhat(instance!.rootFolder);
     const [owner] = await ethers.getSigners();
     const Factory = await ethers.getContractFactory(contractName);

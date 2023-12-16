@@ -1,3 +1,5 @@
+import { execTask } from "./augmentation/cypress";
+
 var _text2png: any;
 
 const firstEmoji = 0x1f604;
@@ -106,7 +108,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("storeData", (k, v) => {
-  cy.execTask(
+  execTask(
     "storeData",
     {
       key: k,
@@ -119,13 +121,13 @@ Cypress.Commands.add("storeData", (k, v) => {
 });
 
 Cypress.Commands.add("getData", (k) => {
-  cy.execTask("getData", k, {
+  execTask("getData", k, {
     log: false,
   });
 });
 
 Cypress.Commands.add("clearData", (k) => {
-  cy.execTask("clearData", k, {
+  execTask("clearData", k, {
     log: false,
   });
 });

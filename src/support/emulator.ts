@@ -9,6 +9,7 @@ import {
 import nodeFetch from "node-fetch";
 import { FirebaseConfigShape } from "./emulator.types";
 import { LOCALHOST_DOMAIN } from "../consts";
+import { execTask } from "./augmentation/cypress";
 
 let emulatorConfig: FirebaseConfigShape;
 export function setEmulatorConfig(config: FirebaseConfigShape) {
@@ -16,7 +17,7 @@ export function setEmulatorConfig(config: FirebaseConfigShape) {
 }
 
 export const killEmulator = () => {
-  cy.execTask("killEmulator", undefined, {
+  execTask("killEmulator", undefined, {
     log: false,
   });
 };
@@ -50,8 +51,7 @@ Cypress.Commands.add(
     exportDataOnExit = false,
     only = []
   ) => {
-    return cy
-      .execTask(
+    return execTask(
         "startEmulator",
         {
           projectId: projectName,
@@ -197,7 +197,7 @@ Cypress.Commands.add(
                           authInterfaceFunctionName as string
                         }`
                       );
-                  return cy.execTask(
+                  return execTask(
                     "invokeAuthAdmin",
                     {
                       projectId,

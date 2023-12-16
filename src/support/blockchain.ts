@@ -1,6 +1,7 @@
 import Web3 from "web3";
 import { GenericContract } from "../../types/contract";
 import { LOCALHOST_DOMAIN } from "../consts";
+import { execTask } from "./augmentation/cypress";
 
 let web3: Web3;
 let blockchainInfoContext: {
@@ -14,22 +15,20 @@ let blockchainInfoContext: {
 };
 
 Cypress.Commands.add("startBlockchain", function (projectRootFolder) {
-  return cy
-    .execTask("startBlockchain", projectRootFolder, {
-      log: false,
-    })
-    .then((wallets) => {
-      blockchainInfoContext.wallets = wallets;
-      (window as any).ethereum = `ws://${LOCALHOST_DOMAIN}:15000`;
-      web3 = new Web3((window as any).ethereum);
-      for (let wallet of Object.keys(wallets)) {
-        web3.eth.accounts.wallet.add({
-          address: wallet,
-          privateKey: wallets[wallet].secretKey,
-        });
-      }
-      return blockchainInfoContext;
-    });
+  return execTask("startBlockchain", projectRootFolder, {
+    log: false,
+  }).then((wallets) => {
+    blockchainInfoContext.wallets = wallets;
+    (window as any).ethereum = `ws://${LOCALHOST_DOMAIN}:15000`;
+    web3 = new Web3((window as any).ethereum);
+    for (let wallet of Object.keys(wallets)) {
+      web3.eth.accounts.wallet.add({
+        address: wallet,
+        privateKey: wallets[wallet].secretKey,
+      });
+    }
+    return blockchainInfoContext;
+  });
 });
 
 Cypress.Commands.add(
@@ -43,8 +42,7 @@ Cypress.Commands.add(
     const contracts = (ctx.contracts =
       ctx.contracts || blockchainInfoContext.contracts);
     if (contracts[contractName]) return ctx as any;
-    return cy
-      .execTask(
+    return execTask(
         "deployContract",
         {
           contractName,

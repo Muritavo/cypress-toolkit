@@ -87,7 +87,7 @@ namespace BlockchainOperations {
      * This will start up a server to deploy the contracts into
      * @param projectRootFolder The root folder for the project with the contracts
      */
-    startBlockchain(projectRootFolder: string): Cypress.Chainable<
+    startBlockchain(projectRootFolder?: string): Cypress.Chainable<
       (A extends {} ? (A extends undefined ? {} : A) : {}) & {
         wallets: BlockchainWallets;
       }
