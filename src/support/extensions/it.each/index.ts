@@ -1,1 +1,1 @@
-module.exports = require("./it.each");
+export { default } from "./it.each";

@@ -191,7 +191,7 @@ namespace RenderingOperations {
      * This function mounts the provided component in a PIP window.
      * Caveats:
      * - Only works on chrome/chrome based browsers at the point of implementation
-     * - There is currently a bug that requires you to manually change the path to https.
+     * - There is currently a bug that requires you to manually change the path to https (this is only working at cypress 12, cypress 13 is stuck on loading).
      * More details here: https://bugs.chromium.org/p/chromium/issues/detail?id=1486404&q=component%3ABlink%3EMedia%3EPictureInPicture%20localhost&can=2
      * - When closing the pip, the component is remounted on the current page. So it is restored to the initial state.
      * - When the PIP is open for the first time, it changes focus to the pip window.

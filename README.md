@@ -16,6 +16,8 @@ To check the commands, you can take a look at index.d.ts.
 
 Let's hope everything is nicely documented :)
 
+You can also find the documentation for each command at: https://muritavo-co.web.app
+
 **Contribution is also welcome**
 
 # Before using

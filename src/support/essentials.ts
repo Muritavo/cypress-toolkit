@@ -1,3 +1,5 @@
+/// <reference path="../../types/cypress.d.ts"/>
+
 import "cypress-real-events/support";
 import "cypress-wait-until";
 import "cypress-file-upload";
@@ -12,6 +14,7 @@ import "./blockchain";
 import "./interaction";
 import "./file-management";
 import "./ai";
-
-require("@cypress/snapshot").register();
-require("./extensions/it.each")();
+import registerItEach from "./extensions/it.each";
+import { register } from "@cypress/snapshot";
+register();
+registerItEach();
