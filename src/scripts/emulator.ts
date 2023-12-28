@@ -188,8 +188,8 @@ let adminApp: {
   >;
 } = {};
 async function _getAuthAdminInstance(projectId: string, authPort: string) {
-  const { initializeApp } = await import("firebase-admin/app");
-  const { getAuth } = await import("firebase-admin/auth");
+  const { initializeApp } = require("firebase-admin/app");
+  const { getAuth } = require("firebase-admin/auth");
   process.env.FIREBASE_AUTH_EMULATOR_HOST = `${LOCALHOST_DOMAIN}:${authPort}`;
   adminApp[projectId] =
     adminApp[projectId] || initializeApp({ projectId }, projectId);
