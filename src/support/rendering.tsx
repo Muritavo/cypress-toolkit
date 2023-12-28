@@ -1,5 +1,10 @@
 import { mount } from "cypress/react";
-import React, { Fragment, ReactFragment } from "react";
+import React, {
+  Fragment,
+  PropsWithChildren,
+  useState,
+} from "react";
+import { createRoot } from "react-dom/client";
 
 function resultContainer() {
   var value: any = null;
@@ -82,6 +87,77 @@ Cypress.Commands.add("mountChain", function renderChain(renderFunc) {
 });
 Cypress.Commands.add("remount" as any, function (...props) {
   return currRenderFunc(...props);
+});
+
+declare global {
+  interface Window {
+    documentPictureInPicture: {
+      requestWindow: (config?: {
+        height: number;
+        width: number;
+      }) => Promise<any>;
+    };
+    pipWindow?: Window;
+  }
+}
+
+Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
+  const cypressWindow = window.parent!.window;
+  function PipWrapper({ children }: PropsWithChildren) {
+    const [showContent, setShowContent] = useState(false);
+    return (
+      <>
+        <span
+          data-testid="cy-pip-open"
+          style={{
+            position: "fixed",
+            height: 1,
+            width: 1,
+            opacity: 0,
+            bottom: 0,
+            right: 0,
+          }}
+          onClick={async () => {
+            if (!cypressWindow.pipWindow) {
+              cypressWindow.pipWindow =
+                await cypressWindow.documentPictureInPicture.requestWindow();
+            }
+            const renderRoot = createRoot(
+              cypressWindow.pipWindow!.document.body
+            );
+            cypressWindow.pipWindow!.addEventListener("pagehide", () => {
+              renderRoot.unmount();
+              cypressWindow.pipWindow = undefined;
+              setShowContent(true);
+            });
+            renderRoot.render(children);
+          }}
+        >
+          x
+        </span>
+
+        {showContent ? children : <h1>Showing on PIP</h1>}
+      </>
+    );
+  }
+  const chain = cy
+    .mountChain((...args: any[]) => {
+      return <PipWrapper>{renderFunc(...args)}</PipWrapper>;
+    })
+    .then(() => {
+      const originalRerender = currRenderFunc;
+      currRenderFunc = (...args: any[]) => {
+        alert("Pass here");
+        originalRerender(...args);
+        cy.byTestId("cy-pip-open")
+          .realClick()
+          .then(() => {
+            currRenderFunc = originalRerender;
+          });
+      };
+    });
+
+  return chain;
 });
 Cypress.Commands.add(
   "inViewport",

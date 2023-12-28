@@ -173,6 +173,29 @@ namespace UtilityOperations {
 namespace RenderingOperations {
   interface Commands {
     /**
+     * This function mounts the provided component in a PIP window.
+     * Caveats:
+     * - Only works on chrome/chrome based browsers at the point of implementation
+     * - There is currently a bug that requires you to manually change the path to https. 
+     * 
+     * More details here: https://bugs.chromium.org/p/chromium/issues/detail?id=1486404&q=component%3ABlink%3EMedia%3EPictureInPicture%20localhost&can=2
+     * - When closing the pip, the component is remounted on the current page. So it is restored to the initial state.
+     * - When the PIP is open for the first time, it changes focus to the pip window.
+     */
+    mountPip<T extends FunctionComponent>(
+      renderFunc: T
+    ): RerenderChain<Subject, T>;
+
+    /**
+     * This function was created to reduce boilerplate for rerendering.
+     *
+     * This way, you can chain multiple rerenders and test multiple component states
+     */
+    mountChain<T extends FunctionComponent>(
+      renderFunc: T
+    ): RerenderChain<Subject, T>;
+
+    /**
      * Checks if an element is visible in the viewport
      *
      * **OVERFLOW ELEMENTS CAN BE DETECTED AS VISIBLE IN THE VIEWPORT. TAKE CARE WHEN USING THIS FUNCTION**
@@ -363,15 +386,6 @@ declare namespace Cypress {
         ? void
         : Awaited<ReturnType<Cypress.CustomTasks[E]>>
     >;
-
-    /**
-     * This function was created to reduce boilerplate for rerendering.
-     *
-     * This way, you can chain multiple rerenders and test multiple component states
-     */
-    mountChain<T extends FunctionComponent>(
-      renderFunc: T
-    ): RerenderChain<Subject, T>;
     /**
      * This function should be called after calling cy.mountChain
      *
