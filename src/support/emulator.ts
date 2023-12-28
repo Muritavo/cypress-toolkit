@@ -2,10 +2,7 @@
  * These are a series of functions to control an emulator from the cypress tests
  */
 
-import {
-  initializeTestEnvironment,
-  RulesTestContext,
-} from "@firebase/rules-unit-testing";
+import { RulesTestContext } from "@firebase/rules-unit-testing";
 import nodeFetch from "node-fetch";
 import { FirebaseConfigShape } from "./emulator.types";
 import { LOCALHOST_DOMAIN } from "../consts";
@@ -14,6 +11,17 @@ import { execTask } from "./augmentation/cypress";
 let emulatorConfig: FirebaseConfigShape;
 export function setEmulatorConfig(config: FirebaseConfigShape) {
   emulatorConfig = config;
+}
+
+function initializeTestEnvironment(
+  ...args: Parameters<
+    typeof import("@firebase/rules-unit-testing")["initializeTestEnvironment"]
+  >
+) {
+  const { initializeTestEnvironment } =
+    require("@firebase/rules-unit-testing") as typeof import("@firebase/rules-unit-testing");
+
+  return initializeTestEnvironment(...args);
 }
 
 export const killEmulator = () => {
@@ -52,23 +60,22 @@ Cypress.Commands.add(
     only = []
   ) => {
     return execTask(
-        "startEmulator",
-        {
-          projectId: projectName,
-          databaseToImport: databaseToImport,
-          UIPort: emulatorConfig.emulators.ui.port || 4000,
-          suiteId: suiteId || databaseToImport,
-          ports: Object.values(emulatorConfig.emulators).map((a) => a.port),
-          shouldSaveData: exportDataOnExit,
-          only,
-        },
-        {
-          log: false,
-        }
-      )
-      .then(() => {
-        sessionStorage.setItem("last-database", databaseToImport);
-      });
+      "startEmulator",
+      {
+        projectId: projectName,
+        databaseToImport: databaseToImport,
+        UIPort: emulatorConfig.emulators.ui.port || 4000,
+        suiteId: suiteId || databaseToImport,
+        ports: Object.values(emulatorConfig.emulators).map((a) => a.port),
+        shouldSaveData: exportDataOnExit,
+        only,
+      },
+      {
+        log: false,
+      }
+    ).then(() => {
+      sessionStorage.setItem("last-database", databaseToImport);
+    });
   }
 );
 
