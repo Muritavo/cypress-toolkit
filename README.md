@@ -25,10 +25,17 @@ Let's hope everything is nicely documented :)
 # How to use
 
 - Install this library with `yarn add -D @muritavo/cypress-toolkit`
-- Intercept the webpack config and include this library setup with
+- For better intelisense support, include the typings at your _cypress/support/commands.ts_ file. If you don't have it, you can include it on any ts file inside your project. I suggest to create a ts file at _cypress/cypress.d.ts_
 
-```js
-// cypress.config.ts
+```ts
+/// <reference types="@muritavo/cypress-toolkit"/>
+```
+
+- Intercept the cypress config and include this library setup with
+
+```ts
+// at cypress.config.ts
+
 import setup from '@muritavo/cypress-toolkit/dist/scripts/config'
 
 ...
@@ -51,8 +58,7 @@ export default defineConfig({
 
 - Enable the custom commands by including this library like so:
 
-```js
-// cypress/support/commands.ts
-
-import '@muritavo/cypress-toolkit/dist/support/essentials'
+```ts
+// at cypress/support/commands.ts
+import "@muritavo/cypress-toolkit/dist/support/essentials";
 ```

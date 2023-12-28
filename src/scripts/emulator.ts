@@ -1,8 +1,6 @@
 import nodeFetch from "node-fetch";
 import { spawn, ChildProcess } from "child_process";
 import { TasksArgs } from "./tasks";
-import { initializeApp } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
 import killPort from "kill-port";
 import { LOCALHOST_DOMAIN } from "../consts";
 
@@ -185,9 +183,13 @@ export default function setupEmulatorTasks(on: Cypress.PluginEvents) {
 }
 
 let adminApp: {
-  [projectId: string]: ReturnType<typeof initializeApp>;
+  [projectId: string]: ReturnType<
+    typeof import("firebase-admin/app")["initializeApp"]
+  >;
 } = {};
-function _getAuthAdminInstance(projectId: string, authPort: string) {
+async function _getAuthAdminInstance(projectId: string, authPort: string) {
+  const { initializeApp } = await import("firebase-admin/app");
+  const { getAuth } = await import("firebase-admin/auth");
   process.env.FIREBASE_AUTH_EMULATOR_HOST = `${LOCALHOST_DOMAIN}:${authPort}`;
   adminApp[projectId] =
     adminApp[projectId] || initializeApp({ projectId }, projectId);

@@ -4,11 +4,15 @@
 /// <reference types="cypress-visual-regression"/>
 /// <reference path="./types/ai.d.ts"/>
 
+/** @internal */
 type mountFunc = typeof import("cypress/react")["mountHook"];
+/** @internal */
 type FunctionComponent = typeof import("react")["FunctionComponent"];
 
+/** @internal */
 type OverloadProps<TOverload> = Pick<TOverload, keyof TOverload>;
 
+/** @internal */
 type OverloadUnionRecursive<
   TOverload,
   TPartialOverload = unknown
@@ -27,36 +31,45 @@ type OverloadUnionRecursive<
         | ((...args: TArgs) => TReturn)
   : never;
 
+/** @internal */
 // Inferring a union of parameter tuples or return types is now possible.
 type OverloadParameters<T extends (...args: any[]) => any> = Parameters<
   OverloadUnionRecursive<T>
 >;
 
+/** @internal */
 interface FuncInt {
   (arg: string, args: number): void;
   (arg: number, args: symbol): void;
 }
 
+/** @internal */
 declare type MountHookResult<T> = {
   readonly current: T | null | undefined;
   readonly error: Error | null;
 };
 
+/** @internal */
 type ExtractFromUnionKeys = "";
+/** @internal */
 type OnlyCopy = "contains" | "should" | "and" | "then" | "wait";
 
+/** @internal */
 type RerenderChain<I, T> = Cypress.Chainable<I, T>;
 
 namespace BlockchainOperations {
+  /** @internal */
   type ContractShape = {
     address: string;
     owner: string;
   };
+  /** @internal */
   type BlockchainContract<ABI> = {
     address: string;
     owner: string;
     contract: import("./types/contract").GenericContract<ABI>;
   };
+  /** @internal */
   type BlockchainWallets = {
     [address: string]: {
       balance: number;
@@ -64,9 +77,11 @@ namespace BlockchainOperations {
       secretKey: string;
     };
   };
+  /** @internal */
   type ArrayExceptFirst<F> = F extends [arg0: any, ...rest: infer R]
     ? R
     : never;
+  /** @internal */
   type TupleToFunctionTuple<
     A,
     T,
@@ -176,11 +191,23 @@ namespace RenderingOperations {
      * This function mounts the provided component in a PIP window.
      * Caveats:
      * - Only works on chrome/chrome based browsers at the point of implementation
-     * - There is currently a bug that requires you to manually change the path to https. 
-     * 
+     * - There is currently a bug that requires you to manually change the path to https.
      * More details here: https://bugs.chromium.org/p/chromium/issues/detail?id=1486404&q=component%3ABlink%3EMedia%3EPictureInPicture%20localhost&can=2
      * - When closing the pip, the component is remounted on the current page. So it is restored to the initial state.
      * - When the PIP is open for the first time, it changes focus to the pip window.
+     *
+     * ```tsx
+     * // On your test render the component
+     * const chain = cy.mountPip((var1: any, var2: any) =>
+     *  <YourComponent propA={var1} propB={var2}/>
+     * )
+     * chain.remount("x", "pto");
+     *
+     * // ... Do your cypress assertions
+     *
+     * // If necessary, rerender with different props, keeping state
+     * chain.remount("hello", "world");
+     * ```
      */
     mountPip<T extends FunctionComponent>(
       renderFunc: T
@@ -205,6 +232,18 @@ namespace RenderingOperations {
 }
 
 namespace EmulatorOperations {
+  /** @internal */
+  type Admin = ReturnType<typeof import("firebase-admin")["auth"]>;
+  /** @internal */
+  type KeysWithValsOfType<T, V> = keyof {
+    [P in keyof T as T[P] extends V ? P : never]: P;
+  };
+  /** @internal */
+  type AdminAuthInterfaceFunctions = KeysWithValsOfType<
+    Admin,
+    (...params: any[]) => any
+  >;
+
   interface Commands {
     /**
      * This function tries to start an emulator
@@ -282,14 +321,6 @@ namespace EmulatorOperations {
       folder: string
     ): Cypress.Chainable<any>;
   }
-  type Admin = ReturnType<typeof import("firebase-admin")["auth"]>;
-  type KeysWithValsOfType<T, V> = keyof {
-    [P in keyof T as T[P] extends V ? P : never]: P;
-  };
-  type AdminAuthInterfaceFunctions = KeysWithValsOfType<
-    Admin,
-    (...params: any[]) => any
-  >;
   interface Tasks {
     startEmulator: (args: TasksArgs["StartEmulatorTask"]) => Promise<null>;
     killEmulator: () => Promise<null>;
@@ -426,7 +457,9 @@ declare namespace Cypress {
   >;
 }
 
+/** @internal */
 type TasksArgs = import("./src/scripts/tasks").TasksArgs;
+/** @internal */
 type EachFunction = <T extends Tenant = Tenant, P extends any>(
   tenantConfig: {
     [TID in Exclude<Tenant, Exclude<Tenant, T>>]: P;
@@ -435,11 +468,13 @@ type EachFunction = <T extends Tenant = Tenant, P extends any>(
   fn: (a: P) => any
 ) => void;
 
+/** @internal */
 declare namespace jest {
   interface It {
     eachTenant: EachFunction;
   }
 }
+/** @internal */
 interface Each {
   <T extends Array>(
     iterations: T,
