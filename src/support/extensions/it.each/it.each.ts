@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { format } from "util";
-import util from "./util";
+import * as util from "./util";
 
 export default function ItEach() {
   var _opts = {};

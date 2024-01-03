@@ -2,6 +2,8 @@ import { mount } from "cypress/react";
 import React, {
   Fragment,
   PropsWithChildren,
+  useCallback,
+  useEffect,
   useState,
 } from "react";
 import { createRoot } from "react-dom/client";
@@ -103,8 +105,12 @@ declare global {
 
 Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
   const cypressWindow = window.parent!.window;
-  function PipWrapper({ children }: PropsWithChildren) {
+  function PipWrapper({
+    children,
+    viewport,
+  }: PropsWithChildren<{ viewport: VisualViewport }>) {
     const [showContent, setShowContent] = useState(false);
+
     return (
       <>
         <span
@@ -116,6 +122,7 @@ Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
             opacity: 0,
             bottom: 0,
             right: 0,
+            zIndex: 100000000000,
           }}
           onClick={async () => {
             if (!cypressWindow.pipWindow) {
@@ -130,6 +137,34 @@ Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
               cypressWindow.pipWindow = undefined;
               setShowContent(true);
             });
+            function resizeWindow() {
+              const w = cypressWindow.pipWindow!;
+              const targetViewport = w.visualViewport!;
+              const viewportRatio = viewport.width / viewport.height;
+              const targetViewportRatio =
+                targetViewport.width / targetViewport.height;
+              function calculateRatioFromWidth() {
+                return targetViewport.width / viewport.width;
+              }
+              function calculateRatioFromHeight() {
+                return targetViewport.height / viewport.height;
+              }
+              const ratio =
+                viewport.width > viewport.height
+                  ? targetViewportRatio < viewportRatio
+                    ? calculateRatioFromWidth()
+                    : calculateRatioFromHeight()
+                  : targetViewportRatio > viewportRatio
+                  ? calculateRatioFromHeight()
+                  : calculateRatioFromWidth();
+              const root = cypressWindow.pipWindow!.document.documentElement;
+              const rootStyle = root.style;
+              rootStyle.transformOrigin = "0px 0px";
+              rootStyle.transform = `scale(${ratio})`;
+            }
+            cypressWindow.pipWindow!.addEventListener("resize", () => {
+              resizeWindow();
+            });
             renderRoot.render(children);
           }}
         >
@@ -142,12 +177,15 @@ Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
   }
   const chain = cy
     .mountChain((...args: any[]) => {
-      return <PipWrapper>{renderFunc(...args)}</PipWrapper>;
+      return (
+        <PipWrapper viewport={window.visualViewport!}>
+          {renderFunc(...args)}
+        </PipWrapper>
+      );
     })
     .then(() => {
       const originalRerender = currRenderFunc;
       currRenderFunc = (...args: any[]) => {
-        alert("Pass here");
         originalRerender(...args);
         cy.byTestId("cy-pip-open")
           .realClick()

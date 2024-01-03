@@ -36,9 +36,9 @@
 //   }
 // }
 import { mount } from "cypress/react";
-import "../../dist/support/essentials";
+import "../../src/support/essentials";
 
-import { setEmulatorConfig } from "../../dist/support/emulator";
+import { setEmulatorConfig } from "../../src/support/emulator";
 
 setEmulatorConfig(require("../../firebase.json"));
 
