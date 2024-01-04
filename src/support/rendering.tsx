@@ -1,12 +1,14 @@
-import { mount } from "cypress/react";
+import { mount } from "cypress/react18";
 import React, {
   Fragment,
   PropsWithChildren,
   useCallback,
   useEffect,
+  useInsertionEffect,
+  useRef,
   useState,
 } from "react";
-import { createRoot } from "react-dom/client";
+import { Root, createRoot } from "react-dom/client";
 
 function resultContainer() {
   var value: any = null;
@@ -83,8 +85,11 @@ Cypress.Commands.add("mountHookWrap", function (hookFn, Wrapper) {
 let currRenderFunc: any;
 Cypress.Commands.add("mountChain", function renderChain(renderFunc) {
   mount(<Fragment />).then((r) => {
-    currRenderFunc = (...props: Parameters<typeof renderFunc>) =>
-      r.rerender(renderFunc(...props));
+    currRenderFunc = (...props: Parameters<typeof renderFunc>) => {
+      console.log(...props);
+
+      return r.rerender(renderFunc(...props));
+    };
   });
 });
 Cypress.Commands.add("remount" as any, function (...props) {
@@ -103,6 +108,14 @@ declare global {
   }
 }
 
+/**
+ * This uses an internal cypress function to change the document where the commands make their queries
+ */
+function _changeDocumentToQuery(document: Document) {
+  const anyCy = cy as any;
+  anyCy.state("document", document);
+}
+
 Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
   const cypressWindow = window.parent!.window;
   function PipWrapper({
@@ -110,6 +123,11 @@ Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
     viewport,
   }: PropsWithChildren<{ viewport: VisualViewport }>) {
     const [showContent, setShowContent] = useState(false);
+    const [pipRenderRoot, setPipRenderRoot] = useState<Root>();
+
+    useInsertionEffect(() => {
+      if (pipRenderRoot) pipRenderRoot.render(children);
+    });
 
     return (
       <>
@@ -136,6 +154,8 @@ Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
               renderRoot.unmount();
               cypressWindow.pipWindow = undefined;
               setShowContent(true);
+              setPipRenderRoot(undefined);
+              _changeDocumentToQuery(window.document);
             });
             function resizeWindow() {
               const w = cypressWindow.pipWindow!;
@@ -165,7 +185,8 @@ Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
             cypressWindow.pipWindow!.addEventListener("resize", () => {
               resizeWindow();
             });
-            renderRoot.render(children);
+            _changeDocumentToQuery(cypressWindow.pipWindow!.document);
+            setPipRenderRoot(renderRoot);
           }}
         >
           x
