@@ -82,6 +82,18 @@ namespace BlockchainOperations {
     ? R
     : never;
   /** @internal */
+  type StartupConfig = {
+    /** The NFT projects root folder so the contracts can be deployed from */
+    projectRootFolder?: string;
+    /**
+     * This indicates the port the ganache server will run at
+     * @default 8545
+     * */
+    port?: number;
+    /** When this flag is set, it will always create a new non deterministic instance */
+    deterministic?: boolean;
+  };
+  /** @internal */
   type TupleToFunctionTuple<
     A,
     T,
@@ -102,7 +114,7 @@ namespace BlockchainOperations {
      * This will start up a server to deploy the contracts into
      * @param projectRootFolder The root folder for the project with the contracts
      */
-    startBlockchain(projectRootFolder?: string): Cypress.Chainable<
+    startBlockchain(config?: StartupConfig): Cypress.Chainable<
       (A extends {} ? (A extends undefined ? {} : A) : {}) & {
         wallets: BlockchainWallets;
       }
@@ -156,9 +168,7 @@ namespace BlockchainOperations {
     >;
   }
   interface Tasks {
-    startBlockchain(
-      blockchainProjectFolder: string
-    ): Promise<BlockchainWallets>;
+    startBlockchain(props?: StartupConfig): Promise<BlockchainWallets>;
     deployContract(p: {
       contractName: string;
       args: any[];
@@ -189,6 +199,9 @@ namespace RenderingOperations {
   interface Commands {
     /**
      * This function mounts the provided component in a PIP window.
+     *
+     * Not recomended for flows that render components directly on body (like modals, popups, etc...)
+     *
      * Caveats:
      * - Only works on chrome/chrome based browsers at the point of implementation
      * - There is currently a bug that requires you to manually change the path to https (this is only working at cypress 12, cypress 13 is stuck on loading).
@@ -207,6 +220,19 @@ namespace RenderingOperations {
      *
      * // If necessary, rerender with different props, keeping state
      * chain.remount("hello", "world");
+     * ```
+     *
+     * Even though the cypress commands work (kind of) on the pip window, applications that inject elements on body can be out of reach of cypress commands. If there is need to interact/query said elements you can do so like the following.
+     * ```
+     * // Renders something that triggers a modal for example
+     * chain.remount()
+     *
+     * // Grab the cypress document
+     * cy.wrap(window.document.body).within(() => {
+     *  // The following commands will be run inside the non pip document
+     *  cy.contains("stuff")
+     *  cy.get("button")
+     * })
      * ```
      */
     mountPip<T extends FunctionComponent>(

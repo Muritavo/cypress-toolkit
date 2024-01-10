@@ -2,10 +2,7 @@ import { mount } from "cypress/react18";
 import React, {
   Fragment,
   PropsWithChildren,
-  useCallback,
-  useEffect,
   useInsertionEffect,
-  useRef,
   useState,
 } from "react";
 import { Root, createRoot } from "react-dom/client";

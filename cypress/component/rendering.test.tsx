@@ -1,6 +1,27 @@
 import React from "react";
 import { useEffect } from "react";
 
+it.only("Should be able to migrate elements injected on cypress window", () => {
+  function Mounter() {
+    useEffect(() => {
+      const divTest = document.createElement("div");
+      divTest.innerHTML = "This will create at the root cypress window";
+      divTest.addEventListener("click", () => {
+        alert("Clicked")
+      })
+
+      document.body.appendChild(divTest);
+    });
+    return (
+      <>
+        <h1 onClick={() => alert("Funciona")}>This is in pip</h1>
+      </>
+    );
+  }
+  const chain = cy.mountPip(() => <Mounter />);
+  chain.remount()
+});
+
 it.each(
   [
     [

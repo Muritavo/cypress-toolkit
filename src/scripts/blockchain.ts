@@ -20,11 +20,22 @@ let instance: {
     };
   };
   addresses: Addresses;
+  isDeterministic: boolean;
 } | null;
 
-async function startBlockchain(projectFolder?: string) {
-  if (instance) {
+async function startBlockchain({
+  projectRootFolder: projectFolder,
+  port = 8545,
+  deterministic = true,
+}: NonNullable<Parameters<BlockchainOperations.Tasks["startBlockchain"]>[0]>) {
+  const createNewInstance =
+    deterministic === false ||
+    (instance && instance.isDeterministic !== deterministic);
+  if (!createNewInstance && instance) {
     return instance.addresses;
+  }
+  if (createNewInstance && instance) {
+    await instance.process.close();
   }
   if (projectFolder) logger(`Starting blockchain server at "${projectFolder}"`);
   /**
@@ -32,8 +43,9 @@ async function startBlockchain(projectFolder?: string) {
    */
   const serverInstance = server({
     gasLimit: 99000000000000,
+    deterministic,
   });
-  const accounts = await serverInstance.listen(15000).then(() => {
+  const accounts = await serverInstance.listen(port).then(() => {
     return Object.entries(serverInstance.provider.getInitialAccounts()).reduce(
       (r, [k, v]) => ({
         ...r,
@@ -51,6 +63,7 @@ async function startBlockchain(projectFolder?: string) {
     rootFolder: projectFolder,
     contracts: {},
     addresses: accounts,
+    isDeterministic: deterministic,
   };
   return accounts;
 }

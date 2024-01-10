@@ -14,22 +14,28 @@ let blockchainInfoContext: {
   contracts: {},
 };
 
-Cypress.Commands.add("startBlockchain", function (projectRootFolder) {
-  return execTask("startBlockchain", projectRootFolder, {
-    log: false,
-  }).then((wallets) => {
-    blockchainInfoContext.wallets = wallets;
-    (window as any).ethereum = `ws://${LOCALHOST_DOMAIN}:15000`;
-    web3 = new Web3((window as any).ethereum);
-    for (let wallet of Object.keys(wallets)) {
-      web3.eth.accounts.wallet.add({
-        address: wallet,
-        privateKey: wallets[wallet].secretKey,
-      });
-    }
-    return blockchainInfoContext;
-  });
-});
+Cypress.Commands.add(
+  "startBlockchain",
+  function ({ projectRootFolder, port = 8545, deterministic } = {}) {
+    return execTask(
+      "startBlockchain",
+      { projectRootFolder, port, deterministic },
+      {
+        log: false,
+      }
+    ).then((wallets) => {
+      blockchainInfoContext.wallets = wallets;
+      web3 = new Web3(`ws://${LOCALHOST_DOMAIN}:${port}`);
+      for (let wallet of Object.keys(wallets)) {
+        web3.eth.accounts.wallet.add({
+          address: wallet,
+          privateKey: wallets[wallet].secretKey,
+        });
+      }
+      return blockchainInfoContext;
+    });
+  }
+);
 
 Cypress.Commands.add(
   "deployContract",
@@ -43,23 +49,22 @@ Cypress.Commands.add(
       ctx.contracts || blockchainInfoContext.contracts);
     if (contracts[contractName]) return ctx as any;
     return execTask(
-        "deployContract",
-        {
-          contractName,
-          args: args.map((a) => (typeof a === "function" ? a(contracts) : a)),
-        },
-        {
-          log: false,
-        }
-      )
-      .then(({ address, owner }) => {
-        contracts[saveAs] = {
-          address: address.toLowerCase(),
-          owner: owner.toLowerCase(),
-          contract: new web3.eth.Contract(abi as any, address),
-        };
-        return ctx as any;
-      });
+      "deployContract",
+      {
+        contractName,
+        args: args.map((a) => (typeof a === "function" ? a(contracts) : a)),
+      },
+      {
+        log: false,
+      }
+    ).then(({ address, owner }) => {
+      contracts[saveAs] = {
+        address: address.toLowerCase(),
+        owner: owner.toLowerCase(),
+        contract: new web3.eth.Contract(abi as any, address),
+      };
+      return ctx as any;
+    });
   }
 );
 
