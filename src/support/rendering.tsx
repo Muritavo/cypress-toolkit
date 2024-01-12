@@ -2,7 +2,9 @@ import { mount } from "cypress/react18";
 import React, {
   Fragment,
   PropsWithChildren,
+  useEffect,
   useInsertionEffect,
+  useLayoutEffect,
   useState,
 } from "react";
 import { Root, createRoot } from "react-dom/client";
@@ -122,9 +124,29 @@ Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
     const [showContent, setShowContent] = useState(false);
     const [pipRenderRoot, setPipRenderRoot] = useState<Root>();
 
-    useInsertionEffect(() => {
+    useLayoutEffect(() => {
       if (pipRenderRoot) pipRenderRoot.render(children);
     });
+
+    const pip = cypressWindow.pipWindow;
+    useEffect(() => {
+      if (pip) {
+        const observer = new MutationObserver((changes) => {
+          for (let change of changes) {
+            for (let addedNode of Array.from(change.addedNodes))
+              cypressWindow.pipWindow!.document.head.appendChild(addedNode);
+          }
+        });
+        observer.observe(window.document.head, { childList: true });
+        setTimeout(() => {
+          const preinjectedStyles = document.head.querySelectorAll("style");
+          for (let node of Array.from(preinjectedStyles))
+            cypressWindow.pipWindow!.document.head.appendChild(
+              node.cloneNode(true)
+            );
+        }, 250);
+      }
+    }, [pip]);
 
     return (
       <>
@@ -140,13 +162,13 @@ Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
             zIndex: 100000000000,
           }}
           onClick={async () => {
-            if (!cypressWindow.pipWindow) {
+            if (!cypressWindow.pipWindow)
               cypressWindow.pipWindow =
                 await cypressWindow.documentPictureInPicture.requestWindow();
-            }
             const renderRoot = createRoot(
               cypressWindow.pipWindow!.document.body
             );
+
             cypressWindow.pipWindow!.addEventListener("pagehide", () => {
               renderRoot.unmount();
               cypressWindow.pipWindow = undefined;
@@ -155,29 +177,44 @@ Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
               _changeDocumentToQuery(window.document);
             });
             function resizeWindow() {
-              const w = cypressWindow.pipWindow!;
-              const targetViewport = w.visualViewport!;
-              const viewportRatio = viewport.width / viewport.height;
-              const targetViewportRatio =
-                targetViewport.width / targetViewport.height;
+              const pip = cypressWindow.pipWindow!;
+              const pipViewport = pip.visualViewport!;
+              // pip.alert(`${pipViewport.width} ${pipViewport.height}`);
+              /** This is the ratio of the pip viewport | 1 = square | < 1 = portrait (more compressed) | > 1 = landscape (more stretched) */
+              const pipRatio = pipViewport.width / pipViewport.height;
+              const cypressRatio = viewport.width / viewport.height;
+
+              // pip.alert(`${ratios.map((r) => Ratio[r])}`);
               function calculateRatioFromWidth() {
-                return targetViewport.width / viewport.width;
+                return pipViewport.width / viewport.width;
               }
               function calculateRatioFromHeight() {
-                return targetViewport.height / viewport.height;
+                return pipViewport.height / viewport.height;
               }
-              const ratio =
-                viewport.width > viewport.height
-                  ? targetViewportRatio < viewportRatio
-                    ? calculateRatioFromWidth()
-                    : calculateRatioFromHeight()
-                  : targetViewportRatio > viewportRatio
-                  ? calculateRatioFromHeight()
-                  : calculateRatioFromWidth();
+              const scaleDownBy =
+                pipRatio < cypressRatio
+                  ? calculateRatioFromWidth()
+                  : calculateRatioFromHeight();
+
               const root = cypressWindow.pipWindow!.document.documentElement;
               const rootStyle = root.style;
-              rootStyle.transformOrigin = "0px 0px";
-              rootStyle.transform = `scale(${ratio})`;
+              const bodyStyle = cypressWindow.pipWindow!.document.body.style;
+              rootStyle.setProperty("zoom", `${scaleDownBy}`);
+              rootStyle.setProperty("background-size", "20px 20px");
+              rootStyle.setProperty(
+                "background-position",
+                "0 0, 0 10px, 10px -10px, -10px 0px"
+              );
+              rootStyle.setProperty(
+                "background-image",
+                "linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%)"
+              );
+
+              bodyStyle.height = `${viewport.height}px`;
+              bodyStyle.width = `${viewport.width}px`;
+              bodyStyle.position = "relative";
+              bodyStyle.backgroundColor = "white";
+              bodyStyle.boxShadow = "0px 0px 12px -2px black";
             }
             cypressWindow.pipWindow!.addEventListener("resize", () => {
               resizeWindow();
