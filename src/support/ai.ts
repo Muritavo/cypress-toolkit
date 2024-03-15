@@ -59,7 +59,9 @@ Cypress.Commands.add(
               prompt: prompt,
               model: model,
               size: `${width}x${height}`,
-              response_format: "b64_json",
+              response_format: {
+                type: "b64_json"
+              },
             },
             timeout: 240000,
           })

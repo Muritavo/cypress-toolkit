@@ -68,13 +68,24 @@ async function startBlockchain({
   return accounts;
 }
 
-function initHardhat(dir: string) {
+async function initHardhat(dir: string) {
   const startingDir = process.cwd();
   process.chdir(dir);
-  const hardhat = require("hardhat");
-  hardhat.network.provider = instance!.process.provider;
-  process.chdir(startingDir);
-  return hardhat;
+  try {
+    const hardhat = await (async () => {
+      try {
+        return require("hardhat");
+      } catch (e) {
+        return (await import("hardhat")).default;
+      }
+    })();
+    hardhat.network.provider = instance!.process.provider;
+    process.chdir(startingDir);
+    return hardhat;
+  } catch (e) {
+    process.chdir(startingDir);
+    throw e;
+  }
 }
 
 async function deployContract({
@@ -94,7 +105,7 @@ async function deployContract({
       throw new Error(
         `You are trying to deploy a contract without defining the Blockchain Project folder. Please define it at startBlockchain command.`
       );
-    const { ethers } = initHardhat(instance!.rootFolder);
+    const { ethers } = await initHardhat(instance!.rootFolder);
     const [owner] = await ethers.getSigners();
     const Factory = await ethers.getContractFactory(contractName);
     const lock = await Factory.deploy();

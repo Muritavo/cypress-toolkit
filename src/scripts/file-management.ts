@@ -11,8 +11,6 @@ export function setupFileManagementTasks(on: Cypress.PluginEvents) {
         encoding = "base64",
         filepath,
       } = config
-      console.log(config)
-      console.log(filepath, resolve(filepath));
       if (existsSync(filepath)) {
         return readFileSync(filepath, { encoding: encoding as any });
       }

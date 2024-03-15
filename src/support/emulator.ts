@@ -81,6 +81,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("killEmulator", () => {
   sessionStorage.removeItem("last-database");
+  killEmulator();
 });
 
 Cypress.Commands.add("clearFirestore", (projectId: string) => {

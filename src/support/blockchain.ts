@@ -124,10 +124,14 @@ Cypress.Commands.add(
           await new Promise<void>((r) => setTimeout(() => r(), 2000));
         else {
           if (isMined) r(ctx);
-          else rej("TRANSACTION_FAILED");
+          else rej(new Error(`Transaction failed, check the logs`));
           break;
         }
       }
     }) as any;
   }
 );
+
+afterEach(() => {
+  blockchainInfoContext.contracts = {};
+});
