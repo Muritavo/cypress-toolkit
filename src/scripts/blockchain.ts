@@ -1,6 +1,6 @@
-import ganache from "ganache";
 import debug from "debug";
-const { server } = ganache;
+import { hardhatArguments } from "hardhat";
+import { TASK_NODE_SERVER_READY } from "hardhat/builtin-tasks/task-names";
 const logger = debug("cypress-toolkit/blockchain");
 
 // This register the tasks for deploying a hardhat blockchain
@@ -12,7 +12,7 @@ type Addresses = {
   };
 };
 let instance: {
-  process: ReturnType<typeof server>;
+  process: typeof import("hardhat");
   rootFolder?: string;
   contracts: {
     [id: string]: {
@@ -20,68 +20,95 @@ let instance: {
     };
   };
   addresses: Addresses;
-  isDeterministic: boolean;
 } | null;
 
-async function startBlockchain({
+export async function startBlockchain({
   projectRootFolder: projectFolder,
   port = 8545,
-  deterministic = true,
 }: NonNullable<Parameters<BlockchainOperations.Tasks["startBlockchain"]>[0]>) {
-  const createNewInstance =
-    deterministic === false ||
-    (instance && instance.isDeterministic !== deterministic);
-  if (!createNewInstance && instance) {
+  if (instance) {
+    const prevFork = instance.process.config.networks.hardhat.forking;
+    if (prevFork)
+      await instance.process.network.provider.request({
+        method: "hardhat_reset",
+        params: [
+          {
+            forking: {
+              jsonRpcUrl: prevFork.url,
+              blockNumber: prevFork.blockNumber,
+            },
+          },
+        ],
+      });
     return instance.addresses;
-  }
-  if (createNewInstance && instance) {
-    await instance.process.close();
   }
   if (projectFolder) logger(`Starting blockchain server at "${projectFolder}"`);
   /**
    * This will start a hardhat node
    */
-  const serverInstance = server({
-    gasLimit: 99000000000000,
-    deterministic,
+  const serverInstance = (await initHardhat(
+    projectFolder
+  )) as typeof import("hardhat");
+  await new Promise<void>((r, rej) => {
+    const timeoutId = setTimeout(() => {
+      rej(new Error(`Something went wrong while starting hardhat node`));
+    }, 30000);
+    serverInstance.tasks[TASK_NODE_SERVER_READY].setAction(async () => {
+      clearTimeout(timeoutId);
+      r();
+    });
+    serverInstance.run("node", {
+      port
+    });
   });
-  const accounts = await serverInstance.listen(port).then(() => {
-    return Object.entries(serverInstance.provider.getInitialAccounts()).reduce(
-      (r, [k, v]) => ({
-        ...r,
-        [k]: {
-          ...v,
-          balance: Number(v.balance),
-          unlocked: Number(v.unlocked),
+  const accounts = new Array(
+    (serverInstance.config.networks.hardhat.accounts as any).count
+  )
+    .fill(undefined)
+    .reduce((res, _, idx) => {
+      const account = deployer(idx, serverInstance);
+      return {
+        ...res,
+        [account.address]: {
+          secretKey: account.key,
         },
-      }),
-      {} as Addresses
-    );
-  });
+      };
+    }, {});
   instance = {
     process: serverInstance,
     rootFolder: projectFolder,
     contracts: {},
     addresses: accounts,
-    isDeterministic: deterministic,
   };
   return accounts;
+}
+
+function deployer(index: number = 0, hardhat: any) {
+  const ethers = hardhat.ethers;
+  const accounts = hardhat.config.networks.hardhat.accounts;
+  const wallet = ethers.Wallet.fromMnemonic(
+    accounts.mnemonic,
+    accounts.path + `/${index}`
+  );
+  return {
+    key: wallet.privateKey,
+    address: wallet.address,
+  };
 }
 
 async function initHardhat(dir: string) {
   const startingDir = process.cwd();
   process.chdir(dir);
   try {
-    const hardhat = await (async () => {
+    const hardhat = (await (async () => {
       try {
         return require("hardhat");
       } catch (e) {
         return (await import("hardhat")).default;
       }
-    })();
-    hardhat.network.provider = instance!.process.provider;
+    })()) as typeof import("hardhat");
     process.chdir(startingDir);
-    return hardhat;
+    return hardhat as any;
   } catch (e) {
     process.chdir(startingDir);
     throw e;
@@ -118,13 +145,21 @@ async function deployContract({
         Object.keys(connection.functions).find(
           (a) => a.split(",", args.length) && a.startsWith("initialize(")
         ) || "initialize";
-      if (connection[initializationKey])
+      if (connection[initializationKey]) {
         await connection[initializationKey](...args);
+      }
+      return {
+        address: lock.address,
+        owner: owner.address,
+        // initArgs: args,
+      };
+    } else {
+      return {
+        address: lock.address,
+        owner: owner.address,
+        // initArgs: undefined,
+      };
     }
-    return {
-      address: lock.address,
-      owner: owner.address,
-    };
   } catch (e) {
     logger(`Something has gone wrong`, e);
     throw e;

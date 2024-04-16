@@ -6,3 +6,4 @@ docs/
 .firebaserc
 firebase.json
 *.cache
+cache/

@@ -84,14 +84,12 @@ namespace BlockchainOperations {
   /** @internal */
   type StartupConfig = {
     /** The NFT projects root folder so the contracts can be deployed from */
-    projectRootFolder?: string;
+    projectRootFolder: string;
     /**
      * This indicates the port the ganache server will run at
      * @default 8545
      * */
     port?: number;
-    /** When this flag is set, it will always create a new non deterministic instance */
-    deterministic?: boolean;
   };
   /** @internal */
   type TupleToFunctionTuple<

@@ -16,10 +16,10 @@ let blockchainInfoContext: {
 
 Cypress.Commands.add(
   "startBlockchain",
-  function ({ projectRootFolder, port = 8545, deterministic } = {}) {
+  function ({ projectRootFolder, port = 8545 } = {}) {
     return execTask(
       "startBlockchain",
-      { projectRootFolder, port, deterministic },
+      { projectRootFolder, port },
       {
         log: false,
       }
@@ -120,9 +120,9 @@ Cypress.Commands.add(
           transaction.status === undefined
             ? undefined // I still don't know if it's loaded
             : !!transaction.status === true;
-        if (isMined === undefined)
-          await new Promise<void>((r) => setTimeout(() => r(), 2000));
-        else {
+        if (isMined === undefined) {
+          await new Promise<void>((r) => setTimeout(() => r(), 1000));
+        } else {
           if (isMined) r(ctx);
           else rej(new Error(`Transaction failed, check the logs`));
           break;
