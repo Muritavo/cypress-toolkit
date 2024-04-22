@@ -2,7 +2,7 @@ import Web3 from "web3";
 import { GenericContract } from "../../types/contract";
 import { LOCALHOST_DOMAIN } from "../consts";
 import { execTask } from "./augmentation/cypress";
-
+import { invokeContract } from "@muritavo/testing-toolkit/dist/client/blockchain";
 let web3: Web3;
 let blockchainInfoContext: {
   wallets: BlockchainOperations.BlockchainWallets;
@@ -70,12 +70,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   "invokeContract",
-  function invoke(
-    walletOrFn,
-    contractName,
-    contractMethodName,
-    ...params: any[]
-  ) {
+  (walletOrFn, contractName, contractMethod, ...args: any[]) => {
     const ctx = blockchainInfoContext;
     const wallet =
       typeof walletOrFn === "string"
@@ -83,52 +78,21 @@ Cypress.Commands.add(
         : walletOrFn(ctx.contracts, ctx.wallets);
     const contract: GenericContract<any> =
       ctx.contracts[contractName as string].contract;
-    const abiDefinition = (contract as any)._jsonInterface.find(
-      (a: any) => a.name === contractMethodName
+    return cy.then(
+      () =>
+        new Cypress.Promise<any>(async (r, rej) => {
+          (invokeContract as any)(
+            wallet,
+            contract,
+            contractMethod,
+            ...args.map((a: (() => any) | any) =>
+              typeof a === "function" ? a(ctx.contracts) : a
+            )
+          )
+            .then((result: any | undefined) => r(result ?? ctx))
+            .catch((e: any) => rej(e));
+        })
     );
-    const state = abiDefinition.stateMutability;
-
-    if (state === "view")
-      return new Cypress.Promise((r) => {
-        (contract.methods[contractMethodName as string] as any)(
-          ...params.map((a) => (typeof a === "function" ? a(ctx.contracts) : a))
-        )
-          .call()
-          .then((result: any) => r(result));
-      });
-
-    const call: any = (contract.methods[contractMethodName as string] as any)(
-      ...params.map((a) => (typeof a === "function" ? a(ctx.contracts) : a))
-    ).send({
-      from: wallet,
-      gas: 90000000,
-      gasPrice: "90000000000",
-    });
-    return new Cypress.Promise<typeof ctx>(async (r, rej) => {
-      const txHash = await new Promise<string>((r, rej) => {
-        call.on("transactionHash", (tX: string) => {
-          r(tX);
-        });
-        call.catch(rej);
-      });
-      while (true) {
-        const transaction = await web3.eth.getTransactionReceipt(txHash);
-
-        const isMined =
-          !transaction ||
-          !transaction.blockHash ||
-          transaction.status === undefined
-            ? undefined // I still don't know if it's loaded
-            : !!transaction.status === true;
-        if (isMined === undefined) {
-          await new Promise<void>((r) => setTimeout(() => r(), 1000));
-        } else {
-          if (isMined) r(ctx);
-          else rej(new Error(`Transaction failed, check the logs`));
-          break;
-        }
-      }
-    }) as any;
   }
 );
 
