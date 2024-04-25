@@ -2898,10 +2898,10 @@
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
 
-"@muritavo/testing-toolkit@^0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@muritavo/testing-toolkit/-/testing-toolkit-0.1.3.tgz#33026784924b92951399151a142c9c826b847925"
-  integrity sha512-9NmPoLndEiEOQfCVvNyZw6OBk4y7wQRAhs0LjSjHuMxCdbLDZg5vQhpo5ezqcQE18hWX2NNC3DdJQzMZaus1+w==
+"@muritavo/testing-toolkit@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@muritavo/testing-toolkit/-/testing-toolkit-0.3.3.tgz#c444962c48c22df5d77f932f91c444ac5db4fde2"
+  integrity sha512-q5w8L+YkiZdzNkg201pBTnKBTSSwuRaYLLnhIb3g1hsElR6j0bF7hJ4qzlG2I1cdgPSGSvM5dBenSg/o1aN5Ng==
   dependencies:
     "@firebase/rules-unit-testing" "^2.0.4"
     "@types/kill-port" "^2.0.3"
