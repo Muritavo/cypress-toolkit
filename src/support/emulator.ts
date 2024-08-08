@@ -13,13 +13,14 @@ export function setEmulatorConfig(config: FirebaseConfigShape) {
   emulatorConfig = config;
 }
 
-function initializeTestEnvironment(
+async function initializeTestEnvironment(
   ...args: Parameters<
     typeof import("@firebase/rules-unit-testing")["initializeTestEnvironment"]
   >
 ) {
-  const { initializeTestEnvironment } =
-    require("@firebase/rules-unit-testing") as typeof import("@firebase/rules-unit-testing");
+  const { initializeTestEnvironment } = await import(
+    "@firebase/rules-unit-testing"
+  );
 
   return initializeTestEnvironment(...args);
 }

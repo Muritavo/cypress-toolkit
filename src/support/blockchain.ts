@@ -2,7 +2,11 @@ import Web3 from "web3";
 import { GenericContract } from "../../types/contract";
 import { LOCALHOST_DOMAIN } from "../consts";
 import { execTask } from "./augmentation/cypress";
-import { invokeContract } from "@muritavo/testing-toolkit/dist/client/blockchain";
+import {
+  invokeContract,
+  setPort,
+} from "@muritavo/testing-toolkit/dist/client/blockchain";
+
 let web3: Web3;
 let blockchainInfoContext: {
   wallets: BlockchainOperations.BlockchainWallets;
@@ -16,16 +20,17 @@ let blockchainInfoContext: {
 
 Cypress.Commands.add(
   "startBlockchain",
-  function ({ projectRootFolder, port = 8545 } = {}) {
+  function ({ projectRootFolder, port = 8545, graphqlProject } = {}) {
     return execTask(
       "startBlockchain",
-      { projectRootFolder, port },
+      { projectRootFolder, port, graphqlProject },
       {
         log: false,
       }
     ).then((wallets) => {
       blockchainInfoContext.wallets = wallets;
       web3 = new Web3(`ws://${LOCALHOST_DOMAIN}:${port}`);
+      setPort(8545);
       for (let wallet of Object.keys(wallets)) {
         web3.eth.accounts.wallet.add({
           address: wallet,
@@ -79,6 +84,7 @@ Cypress.Commands.add(
     const contract: GenericContract<any> =
       ctx.contracts[contractName as string].contract;
     return cy.then(
+      { timeout: 120000 },
       () =>
         new Cypress.Promise<any>(async (r, rej) => {
           (invokeContract as any)(
@@ -96,6 +102,25 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  "deployGraph",
+  (graphFolderPath: string, contractAddresses, graphName, networkName) => {
+    return execTask("deployGraph", {
+      graphFolderPath,
+      contractAddresses,
+      graphDeployName: graphName,
+      networkName,
+    });
+  }
+);
+
+Cypress.Commands.add("blockchainContext", () => {
+  return blockchainInfoContext as any;
+});
+
 afterEach(() => {
   blockchainInfoContext.contracts = {};
+  setTimeout(() => {
+    cy.stopBlockchain();
+  }, 120000);
 });

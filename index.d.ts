@@ -57,6 +57,11 @@ type OnlyCopy = "contains" | "should" | "and" | "then" | "wait";
 /** @internal */
 type RerenderChain<I, T> = Cypress.Chainable<I, T>;
 
+type DeployGraphFunction =
+  typeof import("@muritavo/testing-toolkit/dist/native/blockchain")["deployGraph"];
+type StartBlockchainFunction =
+  typeof import("@muritavo/testing-toolkit/dist/native/blockchain")["startBlockchain"];
+
 namespace BlockchainOperations {
   /** @internal */
   type ContractShape = {
@@ -90,7 +95,7 @@ namespace BlockchainOperations {
      * @default 8545
      * */
     port?: number;
-  };
+  } & Pick<Parameters<StartBlockchainFunction>[0], "graphqlProject">;
   /** @internal */
   type TupleToFunctionTuple<
     A,
@@ -117,6 +122,8 @@ namespace BlockchainOperations {
         wallets: BlockchainWallets;
       }
     >;
+
+    blockchainContext(): RerenderChain<Subject, T>;
 
     /**
      * Deploys a contact and returns the address that it has been deployed to
@@ -164,6 +171,14 @@ namespace BlockchainOperations {
         : // It should never fall here
           never
     >;
+    deployGraph(
+      graphFolderPath: Parameters<>[0],
+      contractAddresses: Parameters<DeployGraphFunction>[1],
+      graphDeployName: Parameters<DeployGraphFunction>[2],
+      networkName: Parameters<DeployGraphFunction>[3]
+    ): RerenderChain<Subject, T>;
+
+    stopBlockchain(): RerenderChain<Subject, T>;
   }
   interface Tasks {
     startBlockchain(props?: StartupConfig): Promise<BlockchainWallets>;
@@ -171,6 +186,19 @@ namespace BlockchainOperations {
       contractName: string;
       args: any[];
     }): Promise<ContractShape>;
+    /**
+     * Takes the folder in which a graph has been initialized (considering using graph-cli)
+     * and deploys it locally on hardhat pointing to the indicated contract addresses
+     */
+    deployGraph(props: {
+      graphFolderPath: Parameters<DeployGraphFunction>[0];
+      contractAddresses: Parameters<DeployGraphFunction>[1];
+      graphDeployName: Parameters<DeployGraphFunction>[2];
+      networkName: Parameters<DeployGraphFunction>[3];
+    }): Promise<void>;
+
+    /** Stopping blockchain */
+    stopBlockchain(): Promise<void>;
   }
 }
 
