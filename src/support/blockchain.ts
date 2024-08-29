@@ -120,7 +120,5 @@ Cypress.Commands.add("blockchainContext", () => {
 
 afterEach(() => {
   blockchainInfoContext.contracts = {};
-  setTimeout(() => {
-    cy.stopBlockchain();
-  }, 120000);
+  cy.execTask("scheduleStopBlockchain");
 });

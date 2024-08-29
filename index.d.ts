@@ -177,8 +177,6 @@ namespace BlockchainOperations {
       graphDeployName: Parameters<DeployGraphFunction>[2],
       networkName: Parameters<DeployGraphFunction>[3]
     ): RerenderChain<Subject, T>;
-
-    stopBlockchain(): RerenderChain<Subject, T>;
   }
   interface Tasks {
     startBlockchain(props?: StartupConfig): Promise<BlockchainWallets>;
@@ -198,7 +196,7 @@ namespace BlockchainOperations {
     }): Promise<void>;
 
     /** Stopping blockchain */
-    stopBlockchain(): Promise<void>;
+    scheduleStopBlockchain(): Promise<void>;
   }
 }
 

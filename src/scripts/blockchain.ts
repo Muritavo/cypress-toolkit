@@ -3,15 +3,22 @@ import {
   deployGraph,
   startBlockchain,
   stopBlockchain,
+  blockchainLogger,
 } from "@muritavo/testing-toolkit/dist/native/blockchain";
 import { createRequire } from "module";
 const { pick } = createRequire(import.meta.url)("lodash");
+
+let stopBlockchainTimer: NodeJS.Timeout | undefined;
 
 export async function startBlockchainTask({
   projectRootFolder,
   port = 8545,
   graphqlProject,
 }: NonNullable<Parameters<BlockchainOperations.Tasks["startBlockchain"]>[0]>) {
+  if (stopBlockchainTimer) {
+    clearTimeout(stopBlockchainTimer);
+    stopBlockchainTimer = undefined;
+  }
   return await startBlockchain({ projectRootFolder, port, graphqlProject });
 }
 
@@ -45,8 +52,13 @@ async function deployGraphTask({
   return null;
 }
 
-async function stopBlockchainTask() {
-  await stopBlockchain();
+function scheduleStopBlockchainTask() {
+  blockchainLogger("The blockchain will stop if no tests are run");
+  stopBlockchainTimer = setTimeout(() => {
+    blockchainLogger("Stopping blockchain");
+    stopBlockchain();
+    stopBlockchainTimer = undefined
+  }, 1000 * 60 * 30);
 
   return null;
 }
@@ -56,6 +68,6 @@ export function setupBlockchainTasks(on: Cypress.PluginEvents) {
     startBlockchain: startBlockchainTask,
     deployContract: deployContractTask,
     deployGraph: deployGraphTask,
-    stopBlockchain: stopBlockchainTask,
+    scheduleStopBlockchain: scheduleStopBlockchainTask,
   } as unknown as Cypress.Tasks);
 }
