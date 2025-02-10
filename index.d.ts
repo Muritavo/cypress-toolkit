@@ -309,6 +309,7 @@ namespace EmulatorOperations {
     startEmulator(
       projectName: string,
       databaseToImport?: string,
+      tenantId?: string,
       suiteId?: string,
       exportDataOnExit?: boolean,
       only?: TasksArgs["StartEmulatorTask"]["only"]
@@ -436,10 +437,10 @@ declare namespace Cypress {
     /**
      * Mount hook with a wrapper
      */
-    mountHookWrap: <T>(
-      hookFn: (...args: any[]) => T,
+    mountHookWrap: <H extends (...args: any[]) => any>(
+      hookFn: H,
       Wrapper: React.FunctionComponent
-    ) => Cypress.Chainable<MountHookResult<T>>;
+    ) => Cypress.Chainable<MountHookResult<ReturnType<H>>, H>;
 
     /**
      * Generate a delayed function for usage with cypress

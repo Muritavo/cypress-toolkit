@@ -56,6 +56,7 @@ Cypress.Commands.add(
   (
     projectName,
     databaseToImport = "",
+    tenantId,
     suiteId,
     exportDataOnExit = false,
     only = []
@@ -70,6 +71,7 @@ Cypress.Commands.add(
         ports: Object.values(emulatorConfig.emulators).map((a) => a.port),
         shouldSaveData: exportDataOnExit,
         only,
+        tenantId,
       },
       {
         log: false,
@@ -121,32 +123,17 @@ Cypress.Commands.add("clearAuth", (projectId: string) => {
 Cypress.Commands.add(
   "addUser",
   (email: string, password, projectId, localId) => {
-    return new Cypress.Promise<void>(async (r, rej) => {
-      nodeFetch(
-        `http://${LOCALHOST_DOMAIN}:${_getPort(
-          "auth"
-        )}/identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts`,
-        {
-          body: JSON.stringify({
-            email,
-            password,
-            localId,
-          }),
-          headers: {
-            "content-type": "application/json",
-            authorization: "Bearer owner",
-          },
-          method: "post",
-        }
-      )
-        .then((res) => {
-          if (res.status < 300) r();
-          else rej(`Creating account returned ${res.status}`);
-        })
-        .catch((e) => {
-          rej(e);
-        });
-    }) as any;
+    cy.setupEmulator(async (_f, _s, a) => {
+      if (localId)
+        a.getUser(localId)
+          .then((u) => {
+            if (u) return a.deleteUser(localId);
+          })
+          .then(() => {
+            a.createUser({ email, password, uid: localId });
+          });
+      else a.createUser({ email, password, uid: localId });
+    }, projectId);
   }
 );
 

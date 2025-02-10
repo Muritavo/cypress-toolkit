@@ -49,10 +49,8 @@ Cypress.Commands.add(
       typeof _contractName === "string"
         ? [_contractName, _contractName]
         : _contractName;
-    const ctx = this;
-    const contracts = (ctx.contracts =
-      ctx.contracts || blockchainInfoContext.contracts);
-    if (contracts[contractName]) return ctx as any;
+    const contracts = blockchainInfoContext.contracts;
+    if (contracts[contractName]) return blockchainInfoContext as any;
     return execTask(
       "deployContract",
       {
@@ -63,12 +61,12 @@ Cypress.Commands.add(
         log: false,
       }
     ).then(({ address, owner }) => {
-      contracts[saveAs] = {
+      (contracts as any)[saveAs] = {
         address: address.toLowerCase(),
         owner: owner.toLowerCase(),
         contract: new web3.eth.Contract(abi as any, address),
       };
-      return ctx as any;
+      return blockchainInfoContext as any;
     });
   }
 );
