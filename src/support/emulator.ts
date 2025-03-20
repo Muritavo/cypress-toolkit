@@ -129,9 +129,7 @@ Cypress.Commands.add(
           .then((u) => {
             if (u) return a.deleteUser(localId);
           })
-          .then(() => {
-            a.createUser({ email, password, uid: localId });
-          });
+          .then(() => a.createUser({ email, password, uid: localId }));
       else a.createUser({ email, password, uid: localId });
     }, projectId);
   }
@@ -163,56 +161,62 @@ Cypress.Commands.add(
     projectId,
     storageBucket
   ) => {
-    return new Cypress.Promise<void>(async (r) => {
-      const testEnv = await initializeTestEnvironment({
-        projectId: projectId,
-        firestore: {
-          host: LOCALHOST_DOMAIN,
-          port: _getPort("firestore"),
-        },
-        storage: {
-          host: LOCALHOST_DOMAIN,
-          port: _getPort("storage"),
-        },
-      });
-      await testEnv.withSecurityRulesDisabled(async (ctx: RulesTestContext) => {
-        await cb(
-          ctx.firestore({
-            experimentalForceLongPolling: true,
-          }),
-          ctx.storage(storageBucket),
-          new Proxy(
-            {},
-            {
-              get: (_, authInterfaceFunctionName) => {
-                return (...params: any[]) => {
-                  for (let param of params)
-                    if (typeof param === "function")
-                      throw new Error(
-                        `The admin is called via proxy to the native node cypress process. A function cannot be passed as parameter to the function ${
-                          authInterfaceFunctionName as string
-                        }`
+    return new Cypress.Promise<void>(async (r, rej) => {
+      try {
+        const testEnv = await initializeTestEnvironment({
+          projectId: projectId,
+          firestore: {
+            host: LOCALHOST_DOMAIN,
+            port: _getPort("firestore"),
+          },
+          storage: {
+            host: LOCALHOST_DOMAIN,
+            port: _getPort("storage"),
+          },
+        });
+        await testEnv.withSecurityRulesDisabled(
+          async (ctx: RulesTestContext) => {
+            await cb(
+              ctx.firestore({
+                experimentalForceLongPolling: true,
+              }),
+              ctx.storage(storageBucket),
+              new Proxy(
+                {},
+                {
+                  get: (_, authInterfaceFunctionName) => {
+                    return (...params: any[]) => {
+                      for (let param of params)
+                        if (typeof param === "function")
+                          throw new Error(
+                            `The admin is called via proxy to the native node cypress process. A function cannot be passed as parameter to the function ${
+                              authInterfaceFunctionName as string
+                            }`
+                          );
+                      return execTask(
+                        "invokeAuthAdmin",
+                        {
+                          projectId,
+                          port: _getPort("auth").toString(),
+                          functionName:
+                            authInterfaceFunctionName as EmulatorOperations.AdminAuthInterfaceFunctions,
+                          params: params as any,
+                        },
+                        {
+                          log: false,
+                        }
                       );
-                  return execTask(
-                    "invokeAuthAdmin",
-                    {
-                      projectId,
-                      port: _getPort("auth").toString(),
-                      functionName:
-                        authInterfaceFunctionName as EmulatorOperations.AdminAuthInterfaceFunctions,
-                      params: params as any,
-                    },
-                    {
-                      log: false,
-                    }
-                  );
-                };
-              },
-            }
-          ) as any
+                    };
+                  },
+                }
+              ) as any
+            );
+          }
         );
-      });
-      r();
+        r();
+      } catch (e) {
+        rej(e);
+      }
     }) as any;
   }
 );
