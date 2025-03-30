@@ -32,7 +32,11 @@ declare namespace AIOperations {
       training: readonly (readonly [prompt: string, answer: string])[],
       suffix?: string,
       folder?: string,
-      max_tokens?: number
+      /**
+       * Parameters to send on request to localai.
+       * See https://platform.openai.com/docs/api-reference/completions/create for available parameters
+       */
+      config?: Partial<{ max_tokens: number; seed: number }>
     ): Cypress.Chainable<string>;
   }
 }

@@ -12,7 +12,7 @@ function hashStr(str: string) {
 
 Cypress.Commands.add(
   "promptLlama",
-  (model, sys, ppt, train, suffix, folder, max_tokens) => {
+  (model, sys, ppt, train, suffix, folder, config = {}) => {
     const prompt = buildPrompt(sys, ppt, train, suffix);
     const hash = hashStr(prompt);
     const filepath = `cypress/ai/llama/${
@@ -27,7 +27,7 @@ Cypress.Commands.add(
             body: {
               prompt: prompt,
               model: model,
-              max_tokens,
+              ...config,
             },
             timeout: 120000,
           })
@@ -60,7 +60,7 @@ Cypress.Commands.add(
               model: model,
               size: `${width}x${height}`,
               response_format: {
-                type: "b64_json"
+                type: "b64_json",
               },
             },
             timeout: 240000,
