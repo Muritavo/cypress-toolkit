@@ -61,24 +61,30 @@ Cypress.Commands.add(
     exportDataOnExit = false,
     only = []
   ) => {
-    return execTask(
-      "startEmulator",
-      {
-        projectId: projectName,
-        databaseToImport: databaseToImport,
-        UIPort: emulatorConfig.emulators.ui.port || 4000,
-        suiteId: suiteId || databaseToImport,
-        ports: Object.values(emulatorConfig.emulators).map((a) => a.port),
-        shouldSaveData: exportDataOnExit,
-        only,
-        tenantId,
-      },
-      {
-        log: false,
-      }
-    ).then(() => {
-      sessionStorage.setItem("last-database", databaseToImport);
-    });
+    return cy
+      .exec("pwd", { log: false })
+      .then((c) => c.stdout)
+      .then((path) => {
+        return execTask(
+          "startEmulator",
+          {
+            projectId: projectName,
+            databaseToImport: databaseToImport,
+            UIPort: emulatorConfig.emulators.ui.port || 4000,
+            suiteId: suiteId || databaseToImport,
+            ports: Object.values(emulatorConfig.emulators).map((a) => a.port),
+            shouldSaveData: exportDataOnExit,
+            only,
+            tenantId,
+            startAtCwd: path,
+          },
+          {
+            log: false,
+          }
+        ).then(() => {
+          sessionStorage.setItem("last-database", databaseToImport);
+        });
+      });
   }
 );
 
