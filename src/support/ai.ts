@@ -14,7 +14,7 @@ Cypress.Commands.add(
   "promptLlama",
   (model, sys, ppt, train, suffix, folder, config = {}) => {
     const prompt = buildPrompt(sys, ppt, train, suffix);
-    const hash = hashStr(prompt);
+    const hash = hashStr(prompt + String(config.seed || ""));
     const filepath = `cypress/ai/llama/${
       folder?.replace(/^\//, "").replace(/$\//, "").concat("/") || ""
     }${hash}.txt`;
