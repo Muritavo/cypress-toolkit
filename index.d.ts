@@ -77,8 +77,6 @@ namespace BlockchainOperations {
   /** @internal */
   type BlockchainWallets = {
     [address: string]: {
-      balance: number;
-      unlocked: number;
       secretKey: string;
     };
   };
@@ -94,7 +92,9 @@ namespace BlockchainOperations {
      * This indicates the port the ganache server will run at
      * @default 8545
      * */
-    port?: number;
+    port: number;
+    /** If the project uses hardhat-deploy, the deploy tags to use */
+    deployTags?: string[];
   } & Pick<Parameters<StartBlockchainFunction>[0], "graphqlProject">;
   /** @internal */
   type TupleToFunctionTuple<
@@ -125,6 +125,12 @@ namespace BlockchainOperations {
 
     blockchainContext(): RerenderChain<Subject, T>;
 
+    bindToBlockchain(props?: StartupConfig): Cypress.Chainable<
+      (A extends {} ? (A extends undefined ? {} : A) : {}) & {
+        wallets: BlockchainWallets;
+      }
+    >;
+
     /**
      * Deploys a contact and returns the address that it has been deployed to
      * @param contractName The name of the contract
@@ -141,12 +147,31 @@ namespace BlockchainOperations {
       ...initializationArgs: (any | ((ctr: A["contracts"]) => any))[]
     ): Cypress.DeployContractResult<A, ABI, CN>;
 
+    /**
+     * Saves a known contract to the cypress context
+     * @param contractAddress The contract address
+     * @param contractName The name of the contract
+     * @param initializationArgs The arguments for initializing the contract ("calls the initialize method")
+     */
+    registerContract<
+      ABI extends readonly any[],
+      const CN extends
+        | string
+        | readonly [ContractName: string, Identifier: string]
+    >(
+      contractAddress: string,
+      contractName: CN,
+      abi: ABI,
+      ...initializationArgs: (any | ((ctr: A["contracts"]) => any))[]
+    ): Cypress.DeployContractResult<A, ABI, CN>;
+
     invokeContract<
       CN extends keyof A["contracts"],
       MethodName extends keyof A["contracts"][CN]["contract"]["methods"]
     >(
       withWalllet:
         | string
+        | import("ethers").Wallet
         | ((contracts: A["contracts"], wallets: A["wallets"]) => string),
       contractName: CN,
       method: MethodName,
@@ -177,6 +202,8 @@ namespace BlockchainOperations {
       graphDeployName: Parameters<DeployGraphFunction>[2],
       networkName: Parameters<DeployGraphFunction>[3]
     ): RerenderChain<Subject, T>;
+
+    impersonateAccount(account: string): RerenderChain<Subject, T>;
   }
   interface Tasks {
     startBlockchain(props?: StartupConfig): Promise<BlockchainWallets>;
@@ -193,10 +220,15 @@ namespace BlockchainOperations {
       contractAddresses: Parameters<DeployGraphFunction>[1];
       graphDeployName: Parameters<DeployGraphFunction>[2];
       networkName: Parameters<DeployGraphFunction>[3];
-    }): Promise<void>;
+    }): Promise<null>;
 
     /** Stopping blockchain */
-    scheduleStopBlockchain(): Promise<void>;
+    scheduleStopBlockchain(): Promise<null>;
+
+    /** Register to running blockchain node */
+    bindToBlockchain(props: StartupConfig): Promise<BlockchainWallets>;
+
+    impersonateAccount(account: string): Promise<null>;
   }
 }
 
@@ -314,6 +346,19 @@ namespace EmulatorOperations {
       exportDataOnExit?: boolean,
       only?: TasksArgs["StartEmulatorTask"]["only"]
     ): Cypress.Chainable<void>;
+    /**
+     * This function registers a started emulator
+     *
+     * @param projectName A required project name for the emulator to start with
+     * @param suiteId an identifier for the emulator, so it can detect when to reinstanciate between tests (usefull for describe blocks)
+     *
+     * If you require the emulator to be recreated after the tests use the function cy.killEmulator() on a afterEach block
+     */
+    registerEmulator(
+      projectName: string,
+      tenantId?: string,
+      suiteId?: string
+    ): Cypress.Chainable<void>;
 
     /**
      * This function force kills all emulator related ports
@@ -381,6 +426,7 @@ namespace EmulatorOperations {
       functionName: F;
       params: Parameters<Admin[F]>;
     }) => Promise<any>;
+    registerEmulator: (args: TasksArgs["registerEmulator"]) => Promise<null>;
   }
 }
 

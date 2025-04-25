@@ -17,4 +17,8 @@ export type TasksArgs = {
     filepath: string;
     encoding?: BufferEncoding;
   };
+
+  registerEmulator: Parameters<
+    typeof import("@muritavo/testing-toolkit/dist/native/emulator")["registerEmulator"]
+  >[0];
 };

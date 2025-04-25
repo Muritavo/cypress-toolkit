@@ -7,6 +7,8 @@ import {
   setPort,
 } from "@muritavo/testing-toolkit/dist/client/blockchain";
 
+export { setPort };
+
 let web3: Web3;
 let blockchainInfoContext: {
   wallets: BlockchainOperations.BlockchainWallets;
@@ -18,19 +20,24 @@ let blockchainInfoContext: {
   contracts: {},
 };
 
+function getWeb3() {
+  if (web3) return web3;
+  else return (web3 = new Web3(`ws://${LOCALHOST_DOMAIN}:${8545}`));
+}
+
 Cypress.Commands.add(
-  "startBlockchain",
-  function ({ projectRootFolder, port = 8545, graphqlProject } = {}) {
+  "bindToBlockchain",
+  ({ projectRootFolder, port = 8545, graphqlProject, deployTags } = {}) => {
     return execTask(
-      "startBlockchain",
-      { projectRootFolder, port, graphqlProject },
+      "bindToBlockchain",
+      { projectRootFolder, port, graphqlProject, deployTags },
       {
         log: false,
       }
     ).then((wallets) => {
       blockchainInfoContext.wallets = wallets;
-      web3 = new Web3(`ws://${LOCALHOST_DOMAIN}:${port}`);
-      setPort(8545);
+      setPort(port);
+      getWeb3();
       for (let wallet of Object.keys(wallets)) {
         web3.eth.accounts.wallet.add({
           address: wallet,
@@ -43,12 +50,58 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
+  "startBlockchain",
+  function ({ projectRootFolder, port = 8545, graphqlProject } = {}) {
+    return execTask(
+      "startBlockchain",
+      { projectRootFolder, port, graphqlProject },
+      {
+        log: false,
+      }
+    ).then((wallets) => {
+      blockchainInfoContext.wallets = wallets;
+      setPort(port);
+      getWeb3();
+      for (let wallet of Object.keys(wallets)) {
+        web3.eth.accounts.wallet.add({
+          address: wallet,
+          privateKey: wallets[wallet].secretKey,
+        });
+      }
+      return blockchainInfoContext;
+    });
+  }
+);
+
+function contractNameOrCustomName(
+  _contractName: string | readonly [contractName: string, saveAs: string]
+) {
+  const [contractName, saveAs] =
+    typeof _contractName === "string"
+      ? [_contractName, _contractName]
+      : _contractName;
+
+  return [contractName, saveAs];
+}
+
+Cypress.Commands.add(
+  "registerContract",
+  (address, _contractName, abi, ...args) => {
+    const [contractName, saveAs] = contractNameOrCustomName(_contractName);
+    const contracts = blockchainInfoContext.contracts;
+    if (contracts[contractName]) return blockchainInfoContext as any;
+    (contracts as any)[saveAs] = {
+      address: address.toLowerCase(),
+      contract: new (getWeb3().eth.Contract)(abi as any, address),
+    };
+    return blockchainInfoContext as any;
+  }
+);
+
+Cypress.Commands.add(
   "deployContract",
   function deploy(_contractName, abi, ...args) {
-    const [contractName, saveAs] =
-      typeof _contractName === "string"
-        ? [_contractName, _contractName]
-        : _contractName;
+    const [contractName, saveAs] = contractNameOrCustomName(_contractName);
     const contracts = blockchainInfoContext.contracts;
     if (contracts[contractName]) return blockchainInfoContext as any;
     return execTask(
@@ -60,10 +113,9 @@ Cypress.Commands.add(
       {
         log: false,
       }
-    ).then(({ address, owner }) => {
+    ).then(({ address }) => {
       (contracts as any)[saveAs] = {
         address: address.toLowerCase(),
-        owner: owner.toLowerCase(),
         contract: new web3.eth.Contract(abi as any, address),
       };
       return blockchainInfoContext as any;
@@ -77,6 +129,8 @@ Cypress.Commands.add(
     const ctx = blockchainInfoContext;
     const wallet =
       typeof walletOrFn === "string"
+        ? walletOrFn
+        : typeof walletOrFn === "object"
         ? walletOrFn
         : walletOrFn(ctx.contracts, ctx.wallets);
     const contract: GenericContract<any> =
@@ -111,6 +165,10 @@ Cypress.Commands.add(
     });
   }
 );
+
+Cypress.Commands.add("impersonateAccount", (account: string) => {
+  return execTask("impersonateAccount", account);
+});
 
 Cypress.Commands.add("blockchainContext", () => {
   return blockchainInfoContext as any;

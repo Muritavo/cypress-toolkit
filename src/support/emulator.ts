@@ -241,3 +241,16 @@ Cypress.Commands.add("deleteCollection", (path, project) => {
       .catch(rej);
   }) as any;
 });
+
+Cypress.Commands.add(
+  "registerEmulator",
+  (projectName: string, tenantId?: string, suiteId: string = "") => {
+    cy.execTask("registerEmulator", {
+      projectId: projectName,
+      suiteId,
+      process: undefined,
+      databaseToImport: "",
+      tenantId
+    });
+  }
+);

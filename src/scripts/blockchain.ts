@@ -4,6 +4,8 @@ import {
   startBlockchain,
   stopBlockchain,
   blockchainLogger,
+  bindToBlockchain,
+  impersonateAccount,
 } from "@muritavo/testing-toolkit/dist/native/blockchain";
 import { createRequire } from "module";
 const { pick } = createRequire(import.meta.url)("lodash");
@@ -52,12 +54,13 @@ async function deployGraphTask({
   return null;
 }
 
-function scheduleStopBlockchainTask() {
+async function scheduleStopBlockchainTask() {
   blockchainLogger("The blockchain will stop if no tests are run");
+  if (stopBlockchainTimer) clearTimeout(stopBlockchainTimer);
   stopBlockchainTimer = setTimeout(() => {
     blockchainLogger("Stopping blockchain");
     stopBlockchain();
-    stopBlockchainTimer = undefined
+    stopBlockchainTimer = undefined;
   }, 1000 * 60 * 30);
 
   return null;
@@ -69,5 +72,20 @@ export function setupBlockchainTasks(on: Cypress.PluginEvents) {
     deployContract: deployContractTask,
     deployGraph: deployGraphTask,
     scheduleStopBlockchain: scheduleStopBlockchainTask,
-  } as unknown as Cypress.Tasks);
+    bindToBlockchain: (props) =>
+      bindToBlockchain({
+        projectFolder: props.projectRootFolder,
+        graphqlProject: props.graphqlProject,
+        hardhatConfigImportPromiseFactory: async () => {
+          const a = await import(`${props.projectRootFolder}/hardhat.config.ts`)
+            .then((m) => m.default)
+            .then((m) => ("default" in m ? m.default : m));
+          return a;
+        },
+        port: props.port,
+        deployTags: props.deployTags,
+      }),
+    impersonateAccount: (account) =>
+      impersonateAccount(account).then(() => null),
+  } satisfies BlockchainOperations.Tasks as Cypress.Tasks);
 }

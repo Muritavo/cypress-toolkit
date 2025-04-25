@@ -2,6 +2,7 @@ import { TasksArgs } from "./tasks";
 import {
   invokeAuthAdmin,
   killEmulator,
+  registerEmulator,
   startEmulator,
 } from "@muritavo/testing-toolkit/dist/native/emulator";
 
@@ -17,5 +18,6 @@ export default function setupEmulatorTasks(on: Cypress.PluginEvents) {
     startEmulator: startEmulatorTask,
     killEmulator: killEmulator,
     invokeAuthAdmin: invokeAuthAdmin,
+    registerEmulator: (args) => registerEmulator(args).then(() => null),
   } as Cypress.Tasks);
 }
