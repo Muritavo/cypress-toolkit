@@ -204,6 +204,8 @@ namespace BlockchainOperations {
     ): RerenderChain<Subject, T>;
 
     impersonateAccount(account: string): RerenderChain<Subject, T>;
+
+    updateBlockchainSnapshot(): RerenderChain<Subject, T>;
   }
   interface Tasks {
     startBlockchain(props?: StartupConfig): Promise<BlockchainWallets>;
@@ -229,6 +231,8 @@ namespace BlockchainOperations {
     bindToBlockchain(props: StartupConfig): Promise<BlockchainWallets>;
 
     impersonateAccount(account: string): Promise<null>;
+
+    updateBlockchainSnapshot(): Promise<null>;
   }
 }
 

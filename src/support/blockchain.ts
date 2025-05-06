@@ -170,6 +170,10 @@ Cypress.Commands.add("impersonateAccount", (account: string) => {
   return execTask("impersonateAccount", account);
 });
 
+Cypress.Commands.add("updateBlockchainSnapshot", () => {
+  return execTask("updateBlockchainSnapshot");
+});
+
 Cypress.Commands.add("blockchainContext", () => {
   return blockchainInfoContext as any;
 });

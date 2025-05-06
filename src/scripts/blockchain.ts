@@ -6,6 +6,7 @@ import {
   blockchainLogger,
   bindToBlockchain,
   impersonateAccount,
+  updateSnapshot,
 } from "@muritavo/testing-toolkit/dist/native/blockchain";
 import { createRequire } from "module";
 const { pick } = createRequire(import.meta.url)("lodash");
@@ -87,5 +88,6 @@ export function setupBlockchainTasks(on: Cypress.PluginEvents) {
       }),
     impersonateAccount: (account) =>
       impersonateAccount(account).then(() => null),
+    updateBlockchainSnapshot: () => updateSnapshot().then(() => null),
   } satisfies BlockchainOperations.Tasks as Cypress.Tasks);
 }
