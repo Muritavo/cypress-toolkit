@@ -1,6 +1,6 @@
 {
   "name": "@muritavo/cypress-toolkit",
-  "version": "0.14.2",
+  "version": "0.14.3",
   "description": "A series of utility functions for working with cypress (mainly cypress Component testing)",
   "main": "dist/index.js",
   "repository": "git@github.com:Muritavo/cypress-toolkit.git",
@@ -64,7 +64,7 @@
     "@cypress/react": "^6.0.0",
     "@cypress/snapshot": "^2.1.7",
     "@firebase/rules-unit-testing": "^2.0.3",
-    "@muritavo/testing-toolkit": "^0.5.0",
+    "@muritavo/testing-toolkit": "^0.6.0",
     "@truffle/compile-solidity": "^6.0.34",
     "@types/find-cache-dir": "^3.2.1",
     "@types/lodash": "^4.17.0",
