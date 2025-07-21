@@ -174,6 +174,14 @@ Cypress.Commands.add("updateBlockchainSnapshot", () => {
   return execTask("updateBlockchainSnapshot");
 });
 
+Cypress.Commands.add("createBlockchainSnapshot", () => {
+  return execTask("createSnapshot");
+});
+
+Cypress.Commands.add("restoreBlockchainSnapshot", (snapshotId) => {
+  return execTask("restoreSnapshot", snapshotId);
+});
+
 Cypress.Commands.add("blockchainContext", () => {
   return blockchainInfoContext as any;
 });

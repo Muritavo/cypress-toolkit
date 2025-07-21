@@ -206,6 +206,8 @@ namespace BlockchainOperations {
     impersonateAccount(account: string): RerenderChain<Subject, T>;
 
     updateBlockchainSnapshot(): RerenderChain<Subject, T>;
+    createBlockchainSnapshot(): Cypress.Chainable<string>;
+    restoreBlockchainSnapshot(snapshotId: string): Cypress.Chainable<string>;
   }
   interface Tasks {
     startBlockchain(props?: StartupConfig): Promise<BlockchainWallets>;
@@ -233,19 +235,22 @@ namespace BlockchainOperations {
     impersonateAccount(account: string): Promise<null>;
 
     updateBlockchainSnapshot(): Promise<null>;
+
+    createSnapshot(): Promise<string>;
+    restoreSnapshot(snapshotId: string): Promise<string>;
   }
 }
 
 namespace UtilityOperations {
   interface Commands {
     /** Saves some data on the current cypress process */
-    storeData(key: string, value: any): void;
+    storeData<T = any>(key: string, value: any): Cypress.Chainable<T>;
 
     /** Retrieves some data on the current cypress process */
-    getData(key: string): any;
+    getData<T = any>(key: string): Cypress.Chainable<T>;
 
     /** Removes some data on the current cypress process */
-    clearData(key: string): any;
+    clearData(key: string): Cypress.Chainable<void>;
   }
 
   interface Tasks {
@@ -256,6 +261,7 @@ namespace UtilityOperations {
 }
 
 namespace RenderingOperations {
+  type Resolution = { width: number; height: number };
   interface Commands {
     /**
      * This function mounts the provided component in a PIP window.
@@ -314,6 +320,16 @@ namespace RenderingOperations {
      * **OVERFLOW ELEMENTS CAN BE DETECTED AS VISIBLE IN THE VIEWPORT. TAKE CARE WHEN USING THIS FUNCTION**
      */
     inViewport(mode?: "dimension-wise" | "width-wise" | "height-wise"): void;
+
+    /**
+     * Allows the user to test over N resolutions
+     * @param assertion The assetions to be made
+     * @param resolutions The resolutions to test against
+     */
+    responsive<F extends (r: Resolution) => any>(
+      assertion: F,
+      resolutions: Resolution[]
+    ): void;
   }
 }
 

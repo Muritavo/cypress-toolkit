@@ -20,7 +20,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("storeData", (k, v) => {
-  execTask(
+  return execTask(
     "storeData",
     {
       key: k,
@@ -29,7 +29,7 @@ Cypress.Commands.add("storeData", (k, v) => {
     {
       log: false,
     }
-  );
+  ).then(() => v);
 });
 
 Cypress.Commands.add("getData", (k) => {

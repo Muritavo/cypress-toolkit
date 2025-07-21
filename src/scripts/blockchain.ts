@@ -7,6 +7,8 @@ import {
   bindToBlockchain,
   impersonateAccount,
   updateSnapshot,
+  restoreSnapshot,
+  createSnapshot,
 } from "@muritavo/testing-toolkit/dist/native/blockchain";
 import { createRequire } from "module";
 const { pick } = createRequire(import.meta.url)("lodash");
@@ -17,12 +19,13 @@ export async function startBlockchainTask({
   projectRootFolder,
   port = 8545,
   graphqlProject,
+  deployTags
 }: NonNullable<Parameters<BlockchainOperations.Tasks["startBlockchain"]>[0]>) {
   if (stopBlockchainTimer) {
     clearTimeout(stopBlockchainTimer);
     stopBlockchainTimer = undefined;
   }
-  return await startBlockchain({ projectRootFolder, port, graphqlProject });
+  return await startBlockchain({ projectRootFolder, port, graphqlProject, deployTags });
 }
 
 async function deployContractTask({
@@ -89,5 +92,11 @@ export function setupBlockchainTasks(on: Cypress.PluginEvents) {
     impersonateAccount: (account) =>
       impersonateAccount(account).then(() => null),
     updateBlockchainSnapshot: () => updateSnapshot().then(() => null),
+    restoreSnapshot(snapshotId) {
+      return restoreSnapshot(snapshotId)
+    },
+    createSnapshot() {
+      return createSnapshot()
+    },
   } satisfies BlockchainOperations.Tasks as Cypress.Tasks);
 }

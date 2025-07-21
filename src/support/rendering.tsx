@@ -1,4 +1,4 @@
-import { mount } from "cypress/react18";
+import { mount } from "cypress/react";
 import React, {
   Fragment,
   PropsWithChildren,
@@ -330,3 +330,13 @@ Cypress.Commands.add(
     }
   }
 );
+Cypress.Commands.add(
+  'responsive',
+  (assertions, resolutions) => {
+    for (let resolution of resolutions) {
+      cy.wrap(resolution)
+        .viewport(resolution.width, resolution.height)
+        .then(() => assertions(resolution))
+    }
+  }
+)

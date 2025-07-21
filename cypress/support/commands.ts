@@ -35,7 +35,7 @@
 //     }
 //   }
 // }
-import { mount } from "cypress/react18";
+import { mount } from "cypress/react";
 import "../../src/support/essentials";
 
 import { setEmulatorConfig } from "../../src/support/emulator";

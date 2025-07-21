@@ -1,5 +1,6 @@
 import { createHash } from "crypto";
 import { buildPrompt } from "../utility/localai";
+import { CypressBrowserProcessWindow } from "../consts";
 
 function hashStr(str: string) {
   const hasher = createHash("md5");
@@ -10,6 +11,29 @@ function hashStr(str: string) {
     .replace(/[^a-zA-Z0-9]/g, "");
 }
 
+declare global {
+  interface Window {
+    inMemoryResponses: {
+      [fp: string]: string | undefined | null;
+    };
+  }
+}
+
+function readFile(filepath: string, encoding: "utf-8" | "base64") {
+  if (!CypressBrowserProcessWindow.inMemoryResponses) {
+    CypressBrowserProcessWindow.inMemoryResponses = {};
+  }
+  const data = CypressBrowserProcessWindow.inMemoryResponses[filepath];
+  if (!data)
+    return cy.readOptionalFile(filepath, encoding).then((fileContent) => {
+      return (CypressBrowserProcessWindow.inMemoryResponses[filepath] =
+        fileContent);
+    });
+  else {
+    return cy.wrap(data, { log: false });
+  }
+}
+
 Cypress.Commands.add(
   "promptLlama",
   (model, sys, ppt, train, suffix, folder, config = {}) => {
@@ -18,7 +42,7 @@ Cypress.Commands.add(
     const filepath = `cypress/ai/llama/${
       folder?.replace(/^\//, "").replace(/$\//, "").concat("/") || ""
     }${hash}.txt`;
-    cy.readOptionalFile(filepath, "utf-8").then((fileContent) => {
+    readFile(filepath, "utf-8").then((fileContent) => {
       if (fileContent === null)
         return cy
           .request({
@@ -47,7 +71,7 @@ Cypress.Commands.add(
     const filepath = `cypress/ai/images/${
       folder?.replace(/^\//, "").replace(/$\//, "").concat("/") || ""
     }${hash}.png`;
-    cy.readOptionalFile(filepath, "base64").then((fileContent) => {
+    readFile(filepath, "base64").then((fileContent) => {
       const b64 = (b64Image: string) => `data:image/png;base64,${b64Image}`;
 
       if (fileContent === null)
@@ -76,7 +100,7 @@ Cypress.Commands.add(
               })
               .then(() => b64(response.body.data[0].b64_json));
           });
-      else return b64(fileContent);
+      else return b64(fileContent!);
     });
   }
 );
