@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
-import { buildPrompt } from "../utility/localai";
-import { CypressBrowserProcessWindow } from "../consts";
+import { buildPrompt } from "../utility/localai.js";
+import { CypressBrowserProcessWindow } from "../consts.js";
 
 function hashStr(str: string) {
   const hasher = createHash("md5");

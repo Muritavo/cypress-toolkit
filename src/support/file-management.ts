@@ -1,4 +1,4 @@
-import { execTask } from "./augmentation/cypress";
+import { execTask } from "./augmentation/cypress.js";
 
 Cypress.Commands.add(
   "readOptionalFile",
