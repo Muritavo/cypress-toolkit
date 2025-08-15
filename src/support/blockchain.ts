@@ -1,11 +1,11 @@
 import Web3 from "web3";
 import { GenericContract } from "../../types/contract";
-import { LOCALHOST_DOMAIN } from "../consts";
-import { execTask } from "./augmentation/cypress";
+import { LOCALHOST_DOMAIN } from "../consts.js";
+import { execTask } from "./augmentation/cypress.js";
 import {
   invokeContract,
   setPort,
-} from "@muritavo/testing-toolkit/dist/client/blockchain";
+} from "@muritavo/testing-toolkit/dist/client/blockchain.js";
 
 export { setPort };
 

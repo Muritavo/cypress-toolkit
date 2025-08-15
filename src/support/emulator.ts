@@ -5,8 +5,8 @@
 import { RulesTestContext } from "@firebase/rules-unit-testing";
 import nodeFetch from "node-fetch";
 import { FirebaseConfigShape } from "./emulator.types";
-import { LOCALHOST_DOMAIN } from "../consts";
-import { execTask } from "./augmentation/cypress";
+import { LOCALHOST_DOMAIN } from "../consts.js";
+import { execTask } from "./augmentation/cypress.js";
 
 let emulatorConfig: FirebaseConfigShape;
 export function setEmulatorConfig(config: FirebaseConfigShape) {
