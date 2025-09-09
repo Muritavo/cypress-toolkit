@@ -1,3 +1,3 @@
-Cypress.Commands.add('byTestId', (test) => {
-    return cy.get(`[data-testid="${test}"]`)
-})
+Cypress.Commands.add("byTestId", (test, options) => {
+  return cy.get(`[data-testid="${test}"]`, options);
+});

@@ -37,7 +37,7 @@ function readFile(filepath: string, encoding: "utf-8" | "base64") {
 Cypress.Commands.add(
   "promptLlama",
   (model, sys, ppt, train, suffix, folder, config = {}) => {
-    const prompt = buildPrompt(sys, ppt, train, suffix);
+    const prompt = buildPrompt(sys, ppt, train, suffix, "qwen");
     const hash = hashStr(prompt + String(config.seed || ""));
     const filepath = `cypress/ai/llama/${
       folder?.replace(/^\//, "").replace(/$\//, "").concat("/") || ""
@@ -46,7 +46,7 @@ Cypress.Commands.add(
       if (fileContent === null)
         return cy
           .request({
-            url: `${getAIConfig().server}/v1/completions`,
+            url: `${getAIConfig().server.textGen}/v1/completions`,
             method: "post",
             body: {
               prompt: prompt,
@@ -77,7 +77,7 @@ Cypress.Commands.add(
       if (fileContent === null)
         return cy
           .request({
-            url: `${getAIConfig().server}/v1/images/generations`,
+            url: `${getAIConfig().server.imageGen}/v1/images/generations`,
             method: "post",
             body: {
               prompt: prompt,
@@ -106,7 +106,10 @@ Cypress.Commands.add(
 );
 
 type AIConfig = {
-  server: string;
+  server: {
+    imageGen: string;
+    textGen: string;
+  };
 };
 
 let aiConfig: AIConfig;

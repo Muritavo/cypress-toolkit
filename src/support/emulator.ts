@@ -108,23 +108,28 @@ Cypress.Commands.add("clearFirestore", (projectId: string) => {
   }) as any;
 });
 
-Cypress.Commands.add("clearAuth", (projectId: string) => {
-  return new Cypress.Promise(async (r, rej) => {
-    await nodeFetch(
-      `http://${LOCALHOST_DOMAIN}:${_getPort(
-        "auth"
-      )}/emulator/v1/projects/${projectId}/accounts`,
-      {
-        method: "delete",
-      }
-    )
-      .then((res) => {
-        if (res.status < 300) r();
-        else rej(`Cleaning accounts returned ${res.status}`);
-      })
-      .catch(rej);
-  }) as any;
-});
+Cypress.Commands.add(
+  "clearAuth",
+  (projectId: string, tenantId: string | undefined) => {
+    return new Cypress.Promise(async (r, rej) => {
+      await nodeFetch(
+        `http://${LOCALHOST_DOMAIN}:${_getPort(
+          "auth"
+        )}/emulator/v1/projects/${projectId}${
+          tenantId ? `/tenants/${tenantId}/accounts` : "/accounts"
+        }`,
+        {
+          method: "delete",
+        }
+      )
+        .then((res) => {
+          if (res.status < 300) r();
+          else rej(`Cleaning accounts returned ${res.status}`);
+        })
+        .catch(rej);
+    }) as any;
+  }
+);
 
 Cypress.Commands.add(
   "addUser",
@@ -250,7 +255,7 @@ Cypress.Commands.add(
       suiteId,
       process: undefined,
       databaseToImport: "",
-      tenantId
+      tenantId,
     });
   }
 );

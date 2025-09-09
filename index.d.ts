@@ -405,7 +405,7 @@ namespace EmulatorOperations {
     /**
      * Clear the current firestore database
      */
-    clearAuth(projectName: string): Cypress.Chainable<void>;
+    clearAuth(projectName: string, tenantId?: string): Cypress.Chainable<void>;
 
     /**
      * Gives access to the admin interface for managing and setting up the emulator environment
@@ -491,7 +491,7 @@ declare namespace Cypress {
     /**
      * This finds an element based on their testids
      */
-    byTestId(testId: string): Chainable<JQuery<HTMLElement>>;
+    byTestId(testId: string, options?: Loggable): Chainable<JQuery<HTMLElement>>;
 
     /**
      * Generates a random image from a string
