@@ -19,13 +19,20 @@ export async function startBlockchainTask({
   projectRootFolder,
   port = 8545,
   graphqlProject,
-  deployTags
+  deployTags,
+  forkToNumber,
 }: NonNullable<Parameters<BlockchainOperations.Tasks["startBlockchain"]>[0]>) {
   if (stopBlockchainTimer) {
     clearTimeout(stopBlockchainTimer);
     stopBlockchainTimer = undefined;
   }
-  return await startBlockchain({ projectRootFolder, port, graphqlProject, deployTags });
+  return await startBlockchain({
+    projectRootFolder,
+    port,
+    graphqlProject,
+    deployTags,
+    forkToNumber,
+  });
 }
 
 async function deployContractTask({
@@ -88,15 +95,16 @@ export function setupBlockchainTasks(on: Cypress.PluginEvents) {
         },
         port: props.port,
         deployTags: props.deployTags,
+        forkToNumber: props.forkToNumber,
       }),
     impersonateAccount: (account) =>
       impersonateAccount(account).then(() => null),
     updateBlockchainSnapshot: () => updateSnapshot().then(() => null),
-    restoreSnapshot(snapshotId) {
-      return restoreSnapshot(snapshotId)
+    restoreSnapshot(snapshotId, fork) {
+      return restoreSnapshot(snapshotId, fork);
     },
     createSnapshot() {
-      return createSnapshot()
+      return createSnapshot();
     },
   } satisfies BlockchainOperations.Tasks as Cypress.Tasks);
 }

@@ -61,6 +61,8 @@ type DeployGraphFunction =
   typeof import("@muritavo/testing-toolkit/dist/native/blockchain")["deployGraph"];
 type StartBlockchainFunction =
   typeof import("@muritavo/testing-toolkit/dist/native/blockchain")["startBlockchain"];
+type RestoreSnapFunction =
+  typeof import("@muritavo/testing-toolkit/dist/native/blockchain")["restoreSnapshot"];
 
 namespace BlockchainOperations {
   /** @internal */
@@ -95,7 +97,10 @@ namespace BlockchainOperations {
     port: number;
     /** If the project uses hardhat-deploy, the deploy tags to use */
     deployTags?: string[];
-  } & Pick<Parameters<StartBlockchainFunction>[0], "graphqlProject">;
+  } & Pick<
+    Parameters<StartBlockchainFunction>[0],
+    "graphqlProject" | "forkToNumber"
+  >;
   /** @internal */
   type TupleToFunctionTuple<
     A,
@@ -237,7 +242,7 @@ namespace BlockchainOperations {
     updateBlockchainSnapshot(): Promise<null>;
 
     createSnapshot(): Promise<string>;
-    restoreSnapshot(snapshotId: string): Promise<string>;
+    restoreSnapshot(...args: Parameters<RestoreSnapFunction>): Promise<string>;
   }
 }
 
@@ -491,7 +496,10 @@ declare namespace Cypress {
     /**
      * This finds an element based on their testids
      */
-    byTestId(testId: string, options?: Loggable): Chainable<JQuery<HTMLElement>>;
+    byTestId(
+      testId: string,
+      options?: Loggable
+    ): Chainable<JQuery<HTMLElement>>;
 
     /**
      * Generates a random image from a string
