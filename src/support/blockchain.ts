@@ -27,10 +27,16 @@ function getWeb3() {
 
 Cypress.Commands.add(
   "bindToBlockchain",
-  ({ projectRootFolder, port = 8545, graphqlProject, deployTags } = {}) => {
+  ({
+    projectRootFolder,
+    port = 8545,
+    graphqlProject,
+    deployTags,
+    forkToNumber,
+  } = {}) => {
     return execTask(
       "bindToBlockchain",
-      { projectRootFolder, port, graphqlProject, deployTags },
+      { projectRootFolder, port, graphqlProject, deployTags, forkToNumber },
       {
         log: false,
       }
@@ -51,10 +57,15 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   "startBlockchain",
-  function ({ projectRootFolder, port = 8545, graphqlProject } = {}) {
+  function ({
+    projectRootFolder,
+    port = 8545,
+    graphqlProject,
+    forkToNumber,
+  } = {}) {
     return execTask(
       "startBlockchain",
-      { projectRootFolder, port, graphqlProject },
+      { projectRootFolder, port, graphqlProject, forkToNumber },
       {
         log: false,
       }
