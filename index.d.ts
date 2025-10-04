@@ -530,6 +530,11 @@ declare namespace Cypress {
      */
     comparePreviousUI: (snapshotId) => Cypress.Chainable<void>;
 
+    /** 
+     * Takes a snapshot of the HTML
+     */
+    assertHTML: (dataTestId?: string, mode?: "text" | "html") => Cypress.Chainable<void>;
+
     /**
      * A copy of cy.task to allow intelissense support
      */

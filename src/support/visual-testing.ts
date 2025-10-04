@@ -69,9 +69,8 @@ ${e.message}`;
       cy.wait(5000).then(() => {
         cypressWindow.removeEventListener("keypress", setShouldUpdate);
         if (shouldUpdate) {
-          setCurrentSnapshotAsBase(imageName)
-        }
-        else throw e;
+          setCurrentSnapshotAsBase(imageName);
+        } else throw e;
       });
     }
     throw e;
@@ -93,4 +92,20 @@ Cypress.Commands.add("comparePreviousUI", (imageId: string) => {
       cy.compareSnapshot(resolutionBoundId);
     });
   });
+});
+
+Cypress.Commands.add("assertHTML", (testId, mode) => {
+  (testId ? cy.byTestId(testId) : cy.byTestId("root"))
+    .then((el) => {
+      const htmlEl = el.get(0) as HTMLDivElement;
+      const htmlStr = htmlEl.innerHTML.replace(/radix-[^"]+/g, "");
+      const newEl = new DOMParser().parseFromString(htmlStr, "text/html");
+      newEl.querySelectorAll("[data-testid]").forEach((element) => {
+        element.removeAttribute("data-testid");
+      });
+      return cy.wrap(mode !== "html" ? newEl.body.textContent : newEl.body, {
+        log: false,
+      });
+    })
+    .snapshot();
 });
