@@ -1,16 +1,20 @@
 import { join } from "path";
 
-try {
-  require("cypress-visual-regression/dist/command").register();
-} catch (e) {
+(async () => {
   try {
-    import("cypress-visual-regression/dist/command").then(({ default: d }) => {
-      d();
-    });
+    require("cypress-visual-regression/dist/command").register();
   } catch (e) {
-    console.log(e);
+    try {
+      await import("cypress-visual-regression/dist/command").then(
+        ({ default: d }) => {
+          d();
+        }
+      );
+    } catch (e) {
+      console.log(e);
+    }
   }
-}
+})();
 
 const cypressWindow = window.parent.window;
 
