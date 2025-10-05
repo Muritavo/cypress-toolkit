@@ -107,7 +107,7 @@ Cypress.Commands.add("assertHTML", (testId, mode) => {
       newEl.querySelectorAll("[data-testid]").forEach((element) => {
         element.removeAttribute("data-testid");
       });
-      return cy.wrap(mode !== "html" ? newEl.body.textContent : newEl.body, {
+      return cy.wrap(mode !== "html" ? newEl.body.innerText : newEl.body, {
         log: false,
       });
     })
