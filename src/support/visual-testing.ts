@@ -102,14 +102,18 @@ Cypress.Commands.add("assertHTML", (testId, mode) => {
   (testId ? cy.byTestId(testId) : cy.byTestId("root"))
     .then((el) => {
       const htmlEl = el.get(0) as HTMLDivElement;
-      const htmlStr = htmlEl.innerHTML.replace(/radix-[^"]+/g, "");
-      const newEl = new DOMParser().parseFromString(htmlStr, "text/html");
-      newEl.querySelectorAll("[data-testid]").forEach((element) => {
-        element.removeAttribute("data-testid");
-      });
-      return cy.wrap(mode !== "html" ? newEl.body.innerText : newEl.body, {
-        log: false,
-      });
+      if (mode === "html") {
+        const htmlStr = htmlEl.innerHTML.replace(/radix-[^"]+/g, "");
+        const newEl = new DOMParser().parseFromString(htmlStr, "text/html");
+        newEl.querySelectorAll("[data-testid]").forEach((element) => {
+          element.removeAttribute("data-testid");
+        });
+        return cy.wrap(newEl.body, {
+          log: false,
+        });
+      } else {
+        return cy.wrap(htmlEl.body.innerText, { log: false });
+      }
     })
     .snapshot();
 });
