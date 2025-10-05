@@ -112,7 +112,7 @@ Cypress.Commands.add("assertHTML", (testId, mode) => {
           log: false,
         });
       } else {
-        return cy.wrap(htmlEl.body.innerText, { log: false });
+        return cy.wrap(htmlEl.innerText, { log: false });
       }
     })
     .snapshot();
