@@ -3,7 +3,6 @@
  */
 
 import { RulesTestContext } from "@firebase/rules-unit-testing";
-import nodeFetch from "node-fetch";
 import { FirebaseConfigShape } from "./emulator.types";
 import { LOCALHOST_DOMAIN } from "../consts.js";
 import { execTask } from "./augmentation/cypress.js";
@@ -61,6 +60,14 @@ Cypress.Commands.add(
     exportDataOnExit = false,
     only = []
   ) => {
+    if (!emulatorConfig)
+      throw new Error(
+        "You didn't provide the emulator config via 'setEmulatorConfig'"
+      );
+    if (!emulatorConfig.emulators)
+      throw new Error(
+        "The provided firebase config doesn't contain emulators config. Please review the firebase.json file."
+      );
     return cy
       .exec("pwd", { log: false })
       .then((c) => c.stdout)
@@ -112,7 +119,7 @@ Cypress.Commands.add(
   "clearAuth",
   (projectId: string, tenantId: string | undefined) => {
     return new Cypress.Promise(async (r, rej) => {
-      await nodeFetch(
+      await fetch(
         `http://${LOCALHOST_DOMAIN}:${_getPort(
           "auth"
         )}/emulator/v1/projects/${projectId}${
@@ -138,7 +145,9 @@ Cypress.Commands.add(
       if (localId)
         a.getUser(localId)
           .then((u) => {
-            if (u) return a.deleteUser(localId);
+            if (u) {
+              return a.deleteUser(localId);
+            }
           })
           .then(() => a.createUser({ email, password, uid: localId }));
       else a.createUser({ email, password, uid: localId });
@@ -170,7 +179,8 @@ Cypress.Commands.add(
   (
     cb: Parameters<(typeof cy)["setupEmulator"]>[0],
     projectId,
-    storageBucket
+    storageBucket,
+    authTenantId
   ) => {
     return new Cypress.Promise<void>(async (r, rej) => {
       try {
@@ -212,6 +222,7 @@ Cypress.Commands.add(
                           functionName:
                             authInterfaceFunctionName as EmulatorOperations.AdminAuthInterfaceFunctions,
                           params: params as any,
+                          overrideAuthTenant: authTenantId,
                         },
                         {
                           log: false,
@@ -234,7 +245,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("deleteCollection", (path, project) => {
   return new Cypress.Promise<any>(async (r, rej) => {
-    nodeFetch(
+    fetch(
       `http://${LOCALHOST_DOMAIN}:${_getPort(
         "firestore"
       )}/emulator/v1/projects/${project}/databases/(default)/documents${path}`,

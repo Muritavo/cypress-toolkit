@@ -83,8 +83,8 @@ export function setupBlockchainTasks(on: Cypress.PluginEvents) {
     deployContract: deployContractTask,
     deployGraph: deployGraphTask,
     scheduleStopBlockchain: scheduleStopBlockchainTask,
-    bindToBlockchain: (props) =>
-      bindToBlockchain({
+    bindToBlockchain: (props) =>{
+      return bindToBlockchain({
         projectFolder: props.projectRootFolder,
         graphqlProject: props.graphqlProject,
         hardhatConfigImportPromiseFactory: async () => {
@@ -96,7 +96,7 @@ export function setupBlockchainTasks(on: Cypress.PluginEvents) {
         port: props.port,
         deployTags: props.deployTags,
         forkToNumber: props.forkToNumber,
-      }),
+      })},
     impersonateAccount: (account) =>
       impersonateAccount(account).then(() => null),
     updateBlockchainSnapshot: () => updateSnapshot().then(() => null),

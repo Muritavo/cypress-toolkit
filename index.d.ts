@@ -422,7 +422,8 @@ namespace EmulatorOperations {
         admin: ReturnType<typeof import("firebase-admin")["auth"]>
       ) => Promise<void>,
       project: string,
-      storageBucket?: string
+      storageBucket?: string,
+      authTenantId?: string
     ): Cypress.Chainable<void>;
 
     /**
@@ -450,6 +451,7 @@ namespace EmulatorOperations {
       port: string;
       functionName: F;
       params: Parameters<Admin[F]>;
+      overrideAuthTenant?: string
     }) => Promise<any>;
     registerEmulator: (args: TasksArgs["registerEmulator"]) => Promise<null>;
   }
