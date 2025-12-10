@@ -100,8 +100,8 @@ export function setupBlockchainTasks(on: Cypress.PluginEvents) {
     impersonateAccount: (account) =>
       impersonateAccount(account).then(() => null),
     updateBlockchainSnapshot: () => updateSnapshot().then(() => null),
-    restoreSnapshot(snapshotId, fork) {
-      return restoreSnapshot(snapshotId, fork);
+    restoreSnapshot(snapshotId) {
+      return restoreSnapshot(snapshotId);
     },
     createSnapshot() {
       return createSnapshot();

@@ -69,7 +69,7 @@
     "@cypress/code-coverage": "^3.14.6",
     "@cypress/react": "^9.0.1",
     "@cypress/snapshot": "^2.1.7",
-    "@muritavo/testing-toolkit": "^0.6.0",
+    "@muritavo/testing-toolkit": "^0.6.6",
     "@types/find-cache-dir": "^5.0.2",
     "@types/lodash": "^4.17.0",
     "@types/node-fetch": "^2.6.2",

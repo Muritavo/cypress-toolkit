@@ -2239,10 +2239,10 @@
   dependencies:
     call-bind "^1.0.8"
 
-"@muritavo/testing-toolkit@^0.6.0":
-  version "0.6.5"
-  resolved "https://registry.yarnpkg.com/@muritavo/testing-toolkit/-/testing-toolkit-0.6.5.tgz#e86789fa6bd7daae6016b458e70ae3af93a5dca9"
-  integrity sha512-xUmQFpmGWSMru/xTF4Mw3fRf+Lfg6/10WggRecMi8jCCjM4vDV5joFSYrlL8kHBfJARtKlq8R0vJMGaONXcr2A==
+"@muritavo/testing-toolkit@^0.6.6":
+  version "0.6.6"
+  resolved "https://registry.yarnpkg.com/@muritavo/testing-toolkit/-/testing-toolkit-0.6.6.tgz#5953619632d972a55df865bf520cc693e5d44baf"
+  integrity sha512-qvi6y/8aYEhvCZNvV8bjShA4iHcJjnhkM7NKd0vOS55SD5bBrwLoji9e6Yaqb53Gb56PDlE/CkclJOBHmIkX6A==
   dependencies:
     "@firebase/rules-unit-testing" "^2.0.4"
     "@types/kill-port" "^2.0.3"
