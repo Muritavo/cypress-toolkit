@@ -6,6 +6,7 @@ import {
   invokeContract,
   setPort,
 } from "@muritavo/testing-toolkit/dist/client/blockchain.js";
+import { addCommand } from "./_shared/register";
 
 export { setPort };
 
@@ -25,21 +26,17 @@ function getWeb3() {
   else return (web3 = new Web3(`ws://${LOCALHOST_DOMAIN}:${8545}`));
 }
 
-Cypress.Commands.add(
+addCommand(
   "bindToBlockchain",
-  ({
-    projectRootFolder,
-    port = 8545,
-    graphqlProject,
-    deployTags,
-    forkToNumber,
-  } = {}) => {
+  "Bind to a blockchain instance for testing. Takes projectRootFolder, port, graphqlProject, deployTags, forkToNumber",
+  { prevSubject: false },
+  ({ projectRootFolder, port, graphqlProject, deployTags, forkToNumber }) => {
     return execTask(
       "bindToBlockchain",
       { projectRootFolder, port, graphqlProject, deployTags, forkToNumber },
       {
         log: false,
-      }
+      },
     ).then((wallets) => {
       blockchainInfoContext.wallets = wallets;
       setPort(port);
@@ -52,23 +49,20 @@ Cypress.Commands.add(
       }
       return blockchainInfoContext;
     });
-  }
+  },
 );
 
-Cypress.Commands.add(
+addCommand(
   "startBlockchain",
-  function ({
-    projectRootFolder,
-    port = 8545,
-    graphqlProject,
-    forkToNumber,
-  } = {}) {
+  "Start a blockchain instance for testing. Takes projectRootFolder, port, graphqlProject, forkToNumber",
+  { prevSubject: false },
+  function ({ projectRootFolder, port = 8545, graphqlProject, forkToNumber }) {
     return execTask(
       "startBlockchain",
       { projectRootFolder, port, graphqlProject, forkToNumber },
       {
         log: false,
-      }
+      },
     ).then((wallets) => {
       blockchainInfoContext.wallets = wallets;
       setPort(port);
@@ -81,11 +75,11 @@ Cypress.Commands.add(
       }
       return blockchainInfoContext;
     });
-  }
+  },
 );
 
 function contractNameOrCustomName(
-  _contractName: string | readonly [contractName: string, saveAs: string]
+  _contractName: string | readonly [contractName: string, saveAs: string],
 ) {
   const [contractName, saveAs] =
     typeof _contractName === "string"
@@ -95,8 +89,10 @@ function contractNameOrCustomName(
   return [contractName, saveAs];
 }
 
-Cypress.Commands.add(
+addCommand(
   "registerContract",
+  "Register a smart contract with the blockchain context. Takes address, contractName, abi, and initialization args",
+  { prevSubject: false },
   (address, _contractName, abi, ...args) => {
     const [contractName, saveAs] = contractNameOrCustomName(_contractName);
     const contracts = blockchainInfoContext.contracts;
@@ -106,11 +102,13 @@ Cypress.Commands.add(
       contract: new (getWeb3().eth.Contract)(abi as any, address),
     };
     return blockchainInfoContext as any;
-  }
+  },
 );
 
-Cypress.Commands.add(
+addCommand(
   "deployContract",
+  "Deploy a smart contract to the blockchain. Takes contractName, abi, and initialization args",
+  { prevSubject: false },
   function deploy(_contractName, abi, ...args) {
     const [contractName, saveAs] = contractNameOrCustomName(_contractName);
     const contracts = blockchainInfoContext.contracts;
@@ -123,7 +121,7 @@ Cypress.Commands.add(
       },
       {
         log: false,
-      }
+      },
     ).then(({ address }) => {
       (contracts as any)[saveAs] = {
         address: address.toLowerCase(),
@@ -131,19 +129,21 @@ Cypress.Commands.add(
       };
       return blockchainInfoContext as any;
     });
-  }
+  },
 );
 
-Cypress.Commands.add(
+addCommand(
   "invokeContract",
+  "Invoke a method on a deployed smart contract. Takes wallet, contractName, method, and parameters",
+  { prevSubject: false },
   (walletOrFn, contractName, contractMethod, ...args: any[]) => {
     const ctx = blockchainInfoContext;
     const wallet =
       typeof walletOrFn === "string"
         ? walletOrFn
         : typeof walletOrFn === "object"
-        ? walletOrFn
-        : walletOrFn(ctx.contracts, ctx.wallets);
+          ? walletOrFn
+          : walletOrFn(ctx.contracts, ctx.wallets);
     const contract: GenericContract<any> =
       ctx.contracts[contractName as string].contract;
     return cy.then(
@@ -155,18 +155,20 @@ Cypress.Commands.add(
             contract,
             contractMethod,
             ...args.map((a: (() => any) | any) =>
-              typeof a === "function" ? a(ctx.contracts) : a
-            )
+              typeof a === "function" ? a(ctx.contracts) : a,
+            ),
           )
             .then((result: any | undefined) => r(result ?? ctx))
             .catch((e: any) => rej(e));
-        })
+        }),
     );
-  }
+  },
 );
 
-Cypress.Commands.add(
+addCommand(
   "deployGraph",
+  "Deploy a Graph protocol subgraph. Takes graphFolderPath, contractAddresses, graphName, networkName",
+  { prevSubject: false },
   (graphFolderPath: string, contractAddresses, graphName, networkName) => {
     return execTask("deployGraph", {
       graphFolderPath,
@@ -174,28 +176,53 @@ Cypress.Commands.add(
       graphDeployName: graphName,
       networkName,
     });
-  }
+  },
 );
 
-Cypress.Commands.add("impersonateAccount", (account: string) => {
-  return execTask("impersonateAccount", account);
-});
+addCommand(
+  "impersonateAccount",
+  "Impersonate an account on the blockchain. Takes account address",
+  { prevSubject: false },
+  (account: string) => {
+    return execTask("impersonateAccount", account);
+  },
+);
 
-Cypress.Commands.add("updateBlockchainSnapshot", () => {
-  return execTask("updateBlockchainSnapshot");
-});
+addCommand(
+  "updateBlockchainSnapshot",
+  "Update the current blockchain snapshot. No parameters",
+  { prevSubject: false },
+  () => {
+    return execTask("updateBlockchainSnapshot");
+  },
+);
 
-Cypress.Commands.add("createBlockchainSnapshot", () => {
-  return execTask("createSnapshot");
-});
+addCommand(
+  "createBlockchainSnapshot",
+  "Create a new blockchain snapshot for state backup. No parameters",
+  { prevSubject: false },
+  () => {
+    return execTask("createSnapshot");
+  },
+);
 
-Cypress.Commands.add("restoreBlockchainSnapshot", (snapshotId) => {
-  return execTask("restoreSnapshot", snapshotId);
-});
+addCommand(
+  "restoreBlockchainSnapshot",
+  "Restore the blockchain state from a snapshot. Takes snapshotId",
+  { prevSubject: false },
+  (snapshotId) => {
+    return execTask("restoreSnapshot", snapshotId);
+  },
+);
 
-Cypress.Commands.add("blockchainContext", () => {
-  return blockchainInfoContext as any;
-});
+addCommand(
+  "blockchainContext",
+  "Get the current blockchain context including wallets and contracts. No parameters",
+  { prevSubject: false },
+  () => {
+    return blockchainInfoContext as any;
+  },
+);
 
 afterEach(() => {
   blockchainInfoContext.contracts = {};

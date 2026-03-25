@@ -81,7 +81,13 @@ ${e.message}`;
   });
 });
 
-Cypress.Commands.add("comparePreviousUI", (imageId: string) => {
+import { addCommand } from "./_shared/register";
+
+addCommand(
+  "comparePreviousUI",
+  "Compare the current UI state with a previously saved snapshot",
+  { prevSubject: false },
+  (imageId: string) => {
   cy.window().then((_w) => {
     const doc = _w.parent.document.body;
     const resolutionBoundId = `${imageId}-${doc.clientWidth}-${doc.clientHeight}`;
@@ -98,7 +104,11 @@ Cypress.Commands.add("comparePreviousUI", (imageId: string) => {
   });
 });
 
-Cypress.Commands.add("assertHTML", (testId, mode) => {
+addCommand(
+  "assertHTML",
+  "Assert HTML or text content of an element, taking a snapshot",
+  { prevSubject: false },
+  (testId, mode) => {
   (testId ? cy.byTestId(testId) : cy.byTestId("root"))
     .then((el) => {
       const htmlEl = el.get(0) as HTMLDivElement;

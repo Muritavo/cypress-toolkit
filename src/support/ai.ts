@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { buildPrompt } from "../utility/localai.js";
 import { CypressBrowserProcessWindow } from "../consts.js";
+import { addCommand } from "./_shared/register";
 
 function hashStr(str: string) {
   const hasher = createHash("md5");
@@ -34,8 +35,10 @@ function readFile(filepath: string, encoding: "utf-8" | "base64") {
   }
 }
 
-Cypress.Commands.add(
+addCommand(
   "promptLlama",
+  "Send a prompt to the LLM and cache the response. Takes model, sys, ppt, train, suffix, folder, config",
+  { prevSubject: false },
   (model, sys, ppt, train, suffix, folder, config = {}) => {
     const prompt = buildPrompt(sys, ppt, train, suffix, "qwen");
     const hash = hashStr(prompt + String(config.seed || ""));
@@ -64,8 +67,10 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add(
+addCommand(
   "generateImage",
+  "Generate an image from a prompt and cache the result. Takes model, prompt, [width, height], folder",
+  { prevSubject: false },
   (model, prompt, [width, height], folder) => {
     const hash = hashStr(`${prompt} ${width} ${height}`);
     const filepath = `cypress/ai/images/${

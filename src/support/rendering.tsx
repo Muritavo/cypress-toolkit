@@ -8,6 +8,7 @@ import React, {
   useState,
 } from "react";
 import { Root, createRoot } from "react-dom/client";
+import { addCommand } from "./_shared/register";
 
 function resultContainer() {
   var value: any = null;
@@ -62,7 +63,13 @@ function TestHook(_a: any) {
   }
   return null;
 }
-Cypress.Commands.add("mountHookWrap", function (hookFn, Wrapper) {
+addCommand(
+  "mountHookWrap",
+  "Mounts a React hook with a wrapper component.",
+  {
+    prevSubject: false,
+  },
+  function (hookFn: any, Wrapper: any) {
   var _a = resultContainer(),
     result = _a.result,
     setValue = _a.setValue,
@@ -82,14 +89,24 @@ Cypress.Commands.add("mountHookWrap", function (hookFn, Wrapper) {
 });
 
 let currRenderFunc: any;
-Cypress.Commands.add("mountChain", function renderChain(renderFunc) {
+addCommand(
+  "mountChain",
+  "Creates a function to allow mounting React components with new props in a chain.",
+  { prevSubject: false },
+  function renderChain(renderFunc) {
   mount(<Fragment />).then((r) => {
     currRenderFunc = (...props: Parameters<typeof renderFunc>) => {
       return r.rerender(renderFunc(...props));
     };
   });
 });
-Cypress.Commands.add("remount" as any, function (...props) {
+addCommand(
+  "remount",
+  "Crates a function to allow mounting React component with new props.",
+  {
+    prevSubject: false,
+  },
+  function (...props: any[]) {
   return currRenderFunc(...props);
 });
 
@@ -113,7 +130,13 @@ function _changeDocumentToQuery(document: Document) {
   anyCy.state("document", document);
 }
 
-Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
+addCommand(
+  "mountPip",
+  "Mounts a React component with Picture-in-Picture (PiP) support for testing responsive layouts in a floating window.",
+  {
+    prevSubject: false,
+  },
+  function (renderFunc: any) {
   const cypressWindow = window.parent!.window;
   function PipWrapper({
     children,
@@ -277,8 +300,9 @@ Cypress.Commands.add("mountPip", function renderPip(renderFunc) {
 
   return chain;
 });
-Cypress.Commands.add(
+addCommand(
   "inViewport",
+  "Checks if an element is fully visible within the viewport.",
   {
     prevSubject: true,
   },
@@ -330,8 +354,9 @@ Cypress.Commands.add(
     }
   }
 );
-Cypress.Commands.add(
+addCommand(
   'responsive',
+  "Tests a component across multiple viewport resolutions with assertions.",
   (assertions, resolutions) => {
     for (let resolution of resolutions) {
       cy.wrap(resolution)

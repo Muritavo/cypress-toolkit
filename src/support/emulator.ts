@@ -6,7 +6,7 @@ import { RulesTestContext } from "@firebase/rules-unit-testing";
 import { FirebaseConfigShape } from "./emulator.types";
 import { LOCALHOST_DOMAIN } from "../consts.js";
 import { execTask } from "./augmentation/cypress.js";
-
+import { addCommand } from "./_shared/register";
 let emulatorConfig: FirebaseConfigShape;
 export function setEmulatorConfig(config: FirebaseConfigShape) {
   emulatorConfig = config;
@@ -50,8 +50,9 @@ before() {
   return emulatorConfigSet.port;
 }
 
-Cypress.Commands.add(
+addCommand(
   "startEmulator",
+  "Starts an emulator instance for testing. Takes projectName, databaseToImport, tenantId, suiteId, exportDataOnExit, and only (an array with the features firestore,storage,etc...).",
   (
     projectName,
     databaseToImport = "",
@@ -95,12 +96,20 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add("killEmulator", () => {
+addCommand(
+  "killEmulator",
+  "Kill the running Firebase emulator instance",
+  { prevSubject: false },
+  () => {
   sessionStorage.removeItem("last-database");
   killEmulator();
 });
 
-Cypress.Commands.add("clearFirestore", (projectId: string) => {
+addCommand(
+  "clearFirestore",
+  "Clear all data from the Firestore emulator for a project",
+  { prevSubject: false },
+  (projectId: string) => {
   return new Cypress.Promise(async (r) => {
     const testEnv = await initializeTestEnvironment({
       projectId: projectId,
@@ -115,8 +124,9 @@ Cypress.Commands.add("clearFirestore", (projectId: string) => {
   }) as any;
 });
 
-Cypress.Commands.add(
+addCommand(
   "clearAuth",
+  "Clears authentication data for a project. Takes projectId and optional tenantId.",
   (projectId: string, tenantId: string | undefined) => {
     return new Cypress.Promise(async (r, rej) => {
       await fetch(
@@ -138,8 +148,9 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add(
+addCommand(
   "addUser",
+  "Adds a user to the emulator. Takes email, password, projectId, and optional predictable id.",
   (email: string, password, projectId, localId) => {
     cy.setupEmulator(async (_f, _s, a) => {
       if (localId)
@@ -155,8 +166,9 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add(
+addCommand(
   "clearEmulatorStorage",
+  "Clears storage data from the emulator. Takes projectId, storageBucket, and folder.",
   (projectId, storageBucket, folder) => {
     cy.setupEmulator(
       async (_f, s) => {
@@ -174,8 +186,9 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add(
+addCommand(
   "setupEmulator",
+  "Sets up the emulator with a callback for testing. Takes callback, projectId, storageBucket, and authTenantId.",
   (
     cb: Parameters<(typeof cy)["setupEmulator"]>[0],
     projectId,
@@ -243,7 +256,11 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add("deleteCollection", (path, project) => {
+addCommand(
+  "deleteCollection",
+  "Delete a Firestore collection by path",
+  { prevSubject: false },
+  (path, project) => {
   return new Cypress.Promise<any>(async (r, rej) => {
     fetch(
       `http://${LOCALHOST_DOMAIN}:${_getPort(
@@ -258,8 +275,9 @@ Cypress.Commands.add("deleteCollection", (path, project) => {
   }) as any;
 });
 
-Cypress.Commands.add(
+addCommand(
   "registerEmulator",
+  "Registers an emulator instance. Takes projectName, optional tenantId, and suiteId.",
   (projectName: string, tenantId?: string, suiteId: string = "") => {
     cy.execTask("registerEmulator", {
       projectId: projectName,

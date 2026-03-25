@@ -1,3 +1,4 @@
+import { addCommand } from "./_shared/register";
 import { execTask } from "./augmentation/cypress";
 
 Cypress.Commands.add(
@@ -19,7 +20,11 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add("storeData", (k, v) => {
+addCommand(
+  "storeData",
+  "Store data in the Cypress task system for later retrieval",
+  { prevSubject: false },
+  (k, v) => {
   return execTask(
     "storeData",
     {
@@ -32,13 +37,21 @@ Cypress.Commands.add("storeData", (k, v) => {
   ).then(() => v);
 });
 
-Cypress.Commands.add("getData", (k) => {
+addCommand(
+  "getData",
+  "Retrieve data previously stored with storeData",
+  { prevSubject: false },
+  (k) => {
   execTask("getData", k, {
     log: false,
   });
 });
 
-Cypress.Commands.add("clearData", (k) => {
+addCommand(
+  "clearData",
+  "Clear data stored with storeData by key",
+  { prevSubject: false },
+  (k) => {
   execTask("clearData", k, {
     log: false,
   });
