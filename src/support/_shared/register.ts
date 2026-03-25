@@ -28,12 +28,14 @@ export function addCommand<T extends keyof Cypress.Chainable>(
     | (Cypress.CommandOptions & { prevSubject: false }),
   maybeHandler?: Cypress.CommandFn<T>,
 ) {
-  const options = typeof handlerOrOptions === "object" ? handlerOrOptions : {};
+  const hasOptions = typeof handlerOrOptions === "object";
+  const options = hasOptions ? handlerOrOptions : {};
   const handler =
     typeof handlerOrOptions === "object" ? maybeHandler : handlerOrOptions;
   if (!!Cypress.Commands.addAndDocument) {
     Cypress.Commands.addAndDocument(name, usage, handler, options);
   } else {
-    Cypress.Commands.add(name as any, handlerOrOptions as any);
+    if (!hasOptions) Cypress.Commands.add(name, handler!);
+    else Cypress.Commands.add(name, options as any, handler!);
   }
 }
