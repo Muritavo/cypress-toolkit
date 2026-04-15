@@ -40,7 +40,7 @@ addCommand(
   "Send a prompt to the LLM and cache the response. Takes model, sys, ppt, train, suffix, folder, config",
   { prevSubject: false },
   (model, sys, ppt, train, suffix, folder, config = {}) => {
-    const prompt = buildPrompt(sys, ppt, train, suffix, "qwen");
+    const prompt = buildPrompt(sys, ppt, train, suffix, "llama");
     const hash = hashStr(prompt + String(config.seed || ""));
     const filepath = `cypress/ai/llama/${
       folder?.replace(/^\//, "").replace(/$\//, "").concat("/") || ""
